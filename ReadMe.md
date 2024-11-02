@@ -1,28 +1,37 @@
+# Pulse ATM Robbery ESX, QBCore, QBox
+
+## Image
+[Imgur](https://imgur.com/WmJoQaa)
+
+## Preview
+![Video Preview] (https://youtu.be/wlhL7KtCYxw)
+
+## Features
 ######
-Join the Discord for Support
-https://discord.gg/72Y7WKsP9M
+- Police Alerts
+- Robbery Cooldown Timer
+- Will work When enough Police is Online
+- Adjustable Reward
+- Adjust Progresion Bar Timer in the Config
+
+
 ######
+## Support, Scripts & More
+- [Script Store](https://pulsescripts.tebex.io/)
+- [Join the Discord For Support](https://discord.gg/c6gXmtEf3H)
+######
+
+## Dependencies
+- [ox_lib](https://github.com/overextended/ox_lib/releases)
+- [utk_fingerprint](https://github.com/utkuali/Finger-Print-Hacking-Game)
+- [qtarget], [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
 
 ######
 Installation
 ######
 
-1) Add the script 'pl-atmrob' to your server resource
-2) Install the following dependencies
-    'utk_fingerprint': 
-    https://github.com/utkuali/Finger-Print-Hacking-Game
-    'ox_target': 
-    https://github.com/overextended/ox_lib
-    'ox_lib': 
-    https://github.com/overextended/ox_target
+1) Add the script to your server resource folder
+2) Install all the above dependencies
+3) Edit the Config.lua according to your liking
 3) Ensure pl-atmrob in the server.cfg and restart the server
 
-
-######
-Features
-######
-1) Police Notification
-2) Robbery Cooldown Timer
-3) Will work When enough Police is Online
-4) Adjustable Reward
-5) Adjust Progresion Bar Timer in the Config
