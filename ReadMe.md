@@ -1,7 +1,7 @@
 # Pulse ATM Robbery ESX, QBCore, QBox
 
 ## Image
-[img]https://i.imgur.com/JjVUNJh.png[/img]
+![Image](https://i.imgur.com/JjVUNJh.png)
 
 ## Preview
 ![Video Preview] (https://youtu.be/wlhL7KtCYxw)
@@ -26,9 +26,7 @@
 - [utk_fingerprint](https://github.com/utkuali/Finger-Print-Hacking-Game)
 - [qtarget](https://github.com/overextended/qtarget.git), [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
 
-######
-Installation
-######
+## Installation
 
 1) Add the script to your server resource folder
 2) Install all the above dependencies
