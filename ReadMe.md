@@ -24,7 +24,7 @@
 ## Dependencies
 - [ox_lib](https://github.com/overextended/ox_lib/releases)
 - [utk_fingerprint](https://github.com/utkuali/Finger-Print-Hacking-Game)
-- [qtarget], [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
+- [qtarget](https://github.com/overextended/qtarget.git), [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
 
 ######
 Installation
