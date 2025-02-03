@@ -6,7 +6,7 @@ Config.Inv = 'qb' --'qb', 'newqb' For QBCore Only
 
 Config.AtmModels = {'prop_fleeca_atm', 'prop_atm_01', 'prop_atm_02', 'prop_atm_03'}
 
-Config.Notify = 'qb' --ox, esx, okok,qb,wasabi,custom
+Config.Notify = 'ox' --ox, esx, okok,qb,wasabi,custom
 
 Config.Target = 'qb-target' --qtarget, qb-target, ox-target
 
@@ -19,12 +19,12 @@ Config.Hacking = {
 Config.CooldownTimer = 60 -- default 10 minutes | 60 = 1 minute
 
 Config.Reward = {
-    account = 'dirty', --cash, dirty
-    amount = '100'
+    account = 'dirty', --bank, cash, dirty
+    amount = 100
 }
 
 Config.Police = {
     notify = true,
-    required = 1,
+    required = 0,
     Job = 'police'
 }

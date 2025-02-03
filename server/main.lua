@@ -13,7 +13,6 @@ lib.callback.register('pl_atmrobbery:checkforpolice', function()
             copcount = copcount + 1
         end
     end
-    print(copcount)
     if copcount >= Config.Police.required then
         return true
     else
