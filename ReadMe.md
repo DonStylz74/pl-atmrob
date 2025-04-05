@@ -1,5 +1,3 @@
-# Pulse ATM Robbery ESX, QBCore, QBox
-
 ## Image
 ![Image](https://i.imgur.com/4cCf0iu.png)
 
