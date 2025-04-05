@@ -1,0 +1,12 @@
+{
+    "hack_atm_label": "ATM'yi Hackle",
+    "drill_atm_label": "ATM'yi Del",
+    "pick_up_cash": "Parayı Al",
+    "dispatch_message": "ATM Soygunu devam ediyor ",
+    "wait_robbery": "Başka bir soygun yapmadan önce beklemen gerekiyor.",
+    "not_enough_police": "Şehirde yeterli polis yok",
+    "failed_robbery": "Soygunu başaramadın.",
+    "server_pickup_cash": "%s dolar aldın!"
+  }
+
+

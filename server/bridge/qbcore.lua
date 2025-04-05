@@ -7,9 +7,8 @@ function getPlayer(target)
     return xPlayer
 end
 
-function getPlayers(target)
-    local xPlayer = QBCore.Functions.GetPlayers(target)
-    return xPlayer
+function getPlayers()
+    return QBCore.Functions.GetPlayers()
 end
 
 function getPlayerName(target)
@@ -26,8 +25,13 @@ end
 
 function GetJob(target)
     local xPlayer = QBCore.Functions.GetPlayer(target)
-    return xPlayer.PlayerData.job.name
+    if xPlayer then
+        return xPlayer.PlayerData.job.name
+    else
+        return nil
+    end
 end
+
 
 function AddPlayerMoney(Player,account,TotalBill)
     local source = Player.PlayerData.source
@@ -36,11 +40,13 @@ function AddPlayerMoney(Player,account,TotalBill)
     elseif account == 'cash' then
         Player.Functions.AddMoney('cash', TotalBill)
     elseif account == 'dirty' then
-        if Config.Inv == 'newqb' then
+        if GetResourceState("ox_inventory") == "started" then
+            exports.ox_inventory:AddItem(source, Config.Reward.account, TotalBill, false)
+        elseif lib.checkDependency('qb-inventory', '2.0.0') then
             local info = {worth = TotalBill}
             exports['qb-inventory']:AddItem(source, 'markedbills', 1, false, info)
             TriggerClientEvent('qb-inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add", info)
-        elseif Config.Inv == 'qb' then
+        else
             local info = {worth = TotalBill}
             Player.Functions.AddItem('markedbills', 1, false, info)
             TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add", info)

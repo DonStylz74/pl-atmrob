@@ -1,0 +1,10 @@
+{
+    "hack_atm_label": "Hackear Cajero",
+    "drill_atm_label": "Perforar Cajero",
+    "pick_up_cash": "Recoger Dinero",
+    "dispatch_message": "Robo de cajero en progreso ",
+    "wait_robbery": "Debes esperar antes de intentar otro robo.",
+    "not_enough_police": "No hay suficientes policías en la ciudad",
+    "failed_robbery": "Has fallado en el intento de robo.",
+    "server_pickup_cash": "¡Recogiste %s dólares!"
+  }

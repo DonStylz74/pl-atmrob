@@ -1,5 +1,13 @@
 {
+    "hack_atm_label": "Hack ATM",
+    "drill_atm_label": "Drill ATM",
+    "pick_up_cash": "Pick up Cash",
+    "dispatch_message": "ATM Robbery in progress ",
+    "wait_robbery": "You need to wait before attempting another robbery.",
     "not_enough_police": "Not Enough Police in the City",
-    "wait_robbery": "You need to wait before attempting another robbery."   ,
-     "failed_robbery": "You have failed the robbery attempt."
+    "failed_robbery": "You have failed the robbery attempt.",
+    "server_pickup_cash": "You picked up %s $"
 }
+
+
+

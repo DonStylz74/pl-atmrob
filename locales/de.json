@@ -1,0 +1,10 @@
+{
+    "hack_atm_label": "Geldautomat hacken",
+    "drill_atm_label": "Geldautomat bohren",
+    "pick_up_cash": "Geld aufsammeln",
+    "dispatch_message": "Geldautomatenraub im Gange ",
+    "wait_robbery": "Du musst warten, bevor du einen weiteren Raub versuchst.",
+    "not_enough_police": "Nicht genug Polizei in der Stadt",
+    "failed_robbery": "Der Raubüberfall ist fehlgeschlagen.",
+    "server_pickup_cash": "Du hast %s Dollar eingesammelt!"
+  }

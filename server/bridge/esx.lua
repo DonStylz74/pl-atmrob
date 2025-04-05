@@ -8,8 +8,7 @@ function getPlayer(target)
 end
 
 function getPlayers()
-    local xPlayer = ESX.GetPlayers()
-    return xPlayer
+    return ESX.GetExtendedPlayers()
 end
 
 function getPlayerName(target)

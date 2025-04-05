@@ -2,36 +2,55 @@
 local lastRobberyTime = 0
 local resourceName = 'pl-atmrob'
 lib.versionCheck('pulsepk/pl-atmrob')
+lib.locale()
+
+local isEsExtendedStarted = GetResourceState('es_extended') == 'started'
+local isQbCoreStarted = GetResourceState('qb-core') == 'started'
 
 lib.callback.register('pl_atmrobbery:checkforpolice', function()
-    local src = source
-    local copcount = 0
-    local xPlayers = getPlayers(src)
-    for i = 1, #xPlayers, 1 do
-        local xPlayer = getPlayer(xPlayers[i])
-        if GetJob(src) == Config.Police.Job then
-            copcount = copcount + 1
+    local copCount = 0
+    local players = getPlayers()
+    local requiredJob = Config.Police.Job
+    local requiredCount = Config.Police.required
+
+    for _, playerId in ipairs(players) do
+        local player = getPlayer(playerId)
+
+        if isEsExtendedStarted then
+            for _, player in pairs(getPlayers()) do
+                if player.getJob().name == requiredJob then
+                    copCount = copCount + 1
+                end
+            end
+        elseif isQbCoreStarted then
+            for _, playerId in pairs(getPlayers()) do
+                local player = getPlayer(playerId)
+                if player.PlayerData.job.name == requiredJob and player.PlayerData.job.onduty then
+                    copCount = copCount + 1
+                end
+            end
+        end
+  
+        if copCount >= requiredCount then
+            return true
         end
     end
-    if copcount >= Config.Police.required then
-        return true
-    else
-        return false
-    end
+
+    return copCount >= requiredCount
 end)
+
 
 lib.callback.register('pl_atmrobbery:checktime', function()
-    local playerId = source
-    local player = getPlayer(playerId)
+    local timePassed = os.time() - lastRobberyTime
 
-    if (os.time() - lastRobberyTime) < Config.CooldownTimer and lastRobberyTime ~= 0 then
-        local secondsRemaining = Config.CooldownTimer - (os.time() - lastRobberyTime)
-        return false
-    else
-        lastRobberyTime = os.time()
-        return true
+    if lastRobberyTime ~= 0 and timePassed < Config.CooldownTimer then
+        return false, Config.CooldownTimer - timePassed
     end
+
+    lastRobberyTime = os.time()
+    return true
 end)
+
 
 
 RegisterServerEvent('pl_atmrobbery:MinigameResult')
@@ -40,19 +59,22 @@ AddEventHandler('pl_atmrobbery:MinigameResult', function(success)
         lastRobberyTime = 0 
     end
 end)
-
 RegisterNetEvent('pl_atmrobbery:GiveReward')
-AddEventHandler('pl_atmrobbery:GiveReward', function(model,atmcoords)
+AddEventHandler('pl_atmrobbery:GiveReward', function(atmCoords)
     local src = source
     local Player = getPlayer(src)
     local Identifier = getPlayerIdentifier(src)
     local PlayerName = getPlayerName(src)
     local ped = GetPlayerPed(src)
     local distance = GetEntityCoords(ped)
-    if #(distance - atmcoords) <= 5 then
+    if #(distance - atmCoords) <= 5 then
         if Player then
-            AddPlayerMoney(Player,Config.Reward.account,Config.Reward.amount)
-            TriggerClientEvent('pl_atmrobbery:notification',src,'You have robbed ' .. Config.Reward.amount .. ' $', 'success')
+            if not Config.MoneyDrop then
+                AddPlayerMoney(Player,Config.Reward.account,Config.Reward.reward)
+            else
+                AddPlayerMoney(Player,Config.Reward.account,Config.Reward.cash_prop_value)
+                TriggerClientEvent('pl_atmrobbery:notification',src,locale('server_pickup_cash', Config.Reward.cash_prop_value), 'success')
+            end
         end
     else
         print('**Name:** '..PlayerName..'\n**Identifier:** '..Identifier..'** Attempted Exploit : Possible Hacker**')
@@ -64,17 +86,23 @@ RegisterNetEvent('pl_atmrobbery:server:policeAlert', function(text)
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
     local players = getPlayers()
+    local requiredJob = Config.Police.Job
 
-    for _, v in pairs(players) do
-        local xPlayer = getPlayer(v)
-        
-        if xPlayer and GetJob(src) == 'police' then
-            local alertData = {title = "Alert", coords = {x = coords.x, y = coords.y, z = coords.z}, description = text}
-            TriggerClientEvent('pl_atmrobbery:client:policeAlert', v, coords, text)
+    if isEsExtendedStarted then
+        for _, player in pairs(getPlayers()) do
+            if player.getJob().name == requiredJob then
+                TriggerClientEvent('pl_atmrobbery:client:policeAlert', player.source, coords, text)
+            end
+        end
+    elseif isQbCoreStarted then
+        for _, playerId in pairs(getPlayers()) do
+            local player = getPlayer(playerId)
+            if player.PlayerData.job.name == requiredJob and player.PlayerData.job.onduty then
+                TriggerClientEvent('pl_atmrobbery:client:policeAlert', playerId, coords, text)
+            end
         end
     end
 end)
-
 local WaterMark = function()
     SetTimeout(1500, function()
         print('^1['..resourceName..'] ^2Thank you for Downloading the Script^0')

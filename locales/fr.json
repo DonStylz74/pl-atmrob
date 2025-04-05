@@ -1,0 +1,12 @@
+{
+    "hack_atm_label": "Pirater le DAB",
+    "drill_atm_label": "Perceuse sur le DAB",
+    "pick_up_cash": "Ramasser l'argent",
+    "dispatch_message": "Braquage de DAB en cours ",
+    "wait_robbery": "Vous devez attendre avant de tenter un autre braquage.",
+    "not_enough_police": "Pas assez de policiers dans la ville",
+    "failed_robbery": "Vous avez échoué au braquage.",
+    "server_pickup_cash": "Vous avez ramassé %s dollars !"
+  }
+
+

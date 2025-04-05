@@ -1,0 +1,11 @@
+{
+    "hack_atm_label": "Hackerare Bancomat",
+    "drill_atm_label": "Trapanare Bancomat",
+    "pick_up_cash": "Raccogli denaro",
+    "dispatch_message": "Rapina al Bancomat in corso ",
+    "wait_robbery": "Devi aspettare prima di tentare un'altra rapina.",
+    "not_enough_police": "Non ci sono abbastanza poliziotti in città",
+    "failed_robbery": "Hai fallito la rapina.",
+    "server_pickup_cash": "Hai raccolto %s dollari!"
+  }
+
