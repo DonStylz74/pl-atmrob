@@ -48,7 +48,7 @@ Config.Reward = {
 Config.Police = {
     notify = true,
     required = 0,
-    Job = 'police'
+    Job = {'police'},
 }
 
 --default for inbuilt

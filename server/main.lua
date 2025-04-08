@@ -7,35 +7,32 @@ lib.locale()
 local isEsExtendedStarted = GetResourceState('es_extended') == 'started'
 local isQbCoreStarted = GetResourceState('qb-core') == 'started'
 
+
+--credits to Lation for checkforpolice
+--https://github.com/IamLation/lation_247robbery
 lib.callback.register('pl_atmrobbery:checkforpolice', function()
-    local copCount = 0
-    local players = getPlayers()
+    
+    local copCount, jobs = 0, {}
+    for _, job in pairs(Config.Police.Job) do
+        jobs[job] = true
+    end
     local requiredJob = Config.Police.Job
     local requiredCount = Config.Police.required
 
-    for _, playerId in ipairs(players) do
-        local player = getPlayer(playerId)
-
-        if isEsExtendedStarted then
-            for _, player in pairs(getPlayers()) do
-                if player.getJob().name == requiredJob then
-                    copCount = copCount + 1
-                end
-            end
-        elseif isQbCoreStarted then
-            for _, playerId in pairs(getPlayers()) do
-                local player = getPlayer(playerId)
-                if player.PlayerData.job.name == requiredJob and player.PlayerData.job.onduty then
-                    copCount = copCount + 1
-                end
+    if isEsExtendedStarted then
+        for _, player in pairs(getPlayers()) do
+            if jobs[player.getJob().name] then
+                copCount = copCount + 1
             end
         end
-  
-        if copCount >= requiredCount then
-            return true
+    elseif isQbCoreStarted then
+        for _, playerId in pairs(getPlayers()) do
+            local player = getPlayer(playerId)
+            if jobs[player.PlayerData.job.name] and player.PlayerData.job.onduty then
+                copCount = copCount + 1
+            end
         end
     end
-
     return copCount >= requiredCount
 end)
 
