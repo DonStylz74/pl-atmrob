@@ -2,7 +2,7 @@
 ![Image](https://i.imgur.com/4cCf0iu.png)
 
 ## Preview
-![Video Preview] (https://youtu.be/nknpd4pe5xo)
+[![Video Preview](https://img.youtube.com/vi/nknpd4pe5xo/0.jpg)](https://youtu.be/nknpd4pe5xo)
 
 # Advanced ATM Robbery Script for FiveM 🚓💰
 

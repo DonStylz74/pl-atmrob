@@ -71,10 +71,10 @@ function AddCashToTarget(cash,atmCoords)
                     event = "pl_atmrobbery:pickupCash",
                     icon = "fas fa-money-bill-wave",
                     label = locale('pick_up_cash'),
-                    args = atmCoords 
+                    atmCoords = atmCoords
                 }
             },
-            distance = 1.0
+            distance = 1.5
         })
     elseif Config.Target == 'ox-target' then
         exports.ox_target:addLocalEntity(cash, {
@@ -363,7 +363,12 @@ RegisterNetEvent("pl_atmrobbery:pickupCash")
 AddEventHandler("pl_atmrobbery:pickupCash", function(data)
     local entity = data.entity
     local playerPed = PlayerPedId()
-    local atmCoords = data.args
+    local atmCoords
+    if Config.Target == 'ox-target' then
+        atmCoords = data.args
+    elseif Config.Target == 'qb-target' then
+        atmCoords = data.atmCoords
+    end
     RequestAnimDict("pickup_object")
     while not HasAnimDictLoaded("pickup_object") do
         Wait(10)
