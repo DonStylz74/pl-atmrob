@@ -56,6 +56,7 @@ Config.Police = {
 --aty for aty_disptach
 --qs for qausar dispatch
 --rcore for rcore dispatch
+--os-dispatch for os-disptachv2
 --custom for your own
 
 Config.Dispatch = 'default'

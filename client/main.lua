@@ -189,6 +189,23 @@ function DispatchAlert()
             }
         TriggerServerEvent('rcore_dispatch:server:sendAlert', alert)
     end)
+    elseif Config.Dispatch == 'os-dispatch' then
+        local ped = PlayerPedId()
+        local coords = GetEntityCoords(ped)
+        local street1, street2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+        local street1name = GetStreetNameFromHashKey(street1)
+        local street2name = GetStreetNameFromHashKey(street2)
+            
+        local job = Config.Police.Job -- Jobs that will receive the alert
+        local title = "ATM Robbery" -- Main title alert
+        local id = GetPlayerServerId(PlayerId()) -- Player that triggered the alert
+        local panic = false -- Allow/Disable panic effect
+            
+        local locationText = street2name and (street1name .. " and " .. street2name) or street1name
+        local text = "ATM Robbery in progress at " .. locationText -- Main text alert
+            
+        TriggerServerEvent('Opto_dispatch:Server:SendAlert', job, title, text, coords, panic, id)
+
     elseif Config.Dispatch == 'custom' then
 
     end
