@@ -100,6 +100,8 @@ AddEventHandler('pl_atmrobbery:notification', function(message, type)
         TriggerEvent("QBCore:Notify", message, type, 6000)
     elseif Config.Notify == 'wasabi' then
         exports.wasabi_notify:notify("ATM ROBBERY", message, 6000, type, false, 'fas fa-ghost')
+    elseif Config.Notify == 'brutal_notify' then
+        exports['brutal_notify']:SendAlert('Notify', message, 6000, type, false)
     elseif Config.Notify == 'custom' then
         -- Add your custom notifications here
     end

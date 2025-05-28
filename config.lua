@@ -14,7 +14,7 @@ Config.MoneyDrop = true
 
 Config.AtmModels = {'prop_fleeca_atm', 'prop_atm_01', 'prop_atm_02', 'prop_atm_03'}
 
-Config.Notify = 'ox' --ox, esx, okok,qb,wasabi,custom
+Config.Notify = 'ox' --'ox', 'esx', 'okok','qb','wasabi','brutal_notify',custom
 
 Config.Target = 'ox-target' --qb-target, ox-target
 
