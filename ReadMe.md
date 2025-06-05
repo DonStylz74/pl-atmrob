@@ -42,8 +42,10 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
 ## Dependencies
 - [ox_lib](https://github.com/overextended/ox_lib/releases)
 - [utk_fingerprint](https://github.com/utkuali/Finger-Print-Hacking-Game)
+- [ps-ui](https://github.com/Project-Sloth/ps-ui) - Optional
 - [M-drilling](https://github.com/MxttDev/M-drilling)
  [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
+
 
 ## Installation
 

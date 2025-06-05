@@ -1,7 +1,8 @@
 local cashObjects = {}
 
+
 local atmModels = {
-    ["prop_atm_01"] = vector3(0.202237, -0.20293, 0.779063),
+    ["prop_atm_01"] = vector3(0.072237, 0.50293, 0.779063),
     ["prop_atm_02"] = vector3(0.01,0.11,0.92),
     ["prop_atm_03"] = vector3(-0.14,-0.01,0.88),
     ["prop_fleeca_atm"] = vector3(0.127, 0.017, 1.0)
@@ -231,7 +232,11 @@ AddEventHandler('pl_atmrobbery_drill', function(data)
                 end
                 TriggerEvent("Drilling:Start",function(success)
                     if (success) then
-                      TriggerEvent('pl_atmrobbery_drill:success',entity, atmCoords, atmModel)
+                        if not Config.MoneyDrop then
+                            LootATM(atmCoords)
+                        else
+                            TriggerEvent('pl_atmrobbery_drill:success',entity, atmCoords, atmModel)
+                        end
                     else
                       TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
                     end
@@ -328,7 +333,7 @@ AddEventHandler('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmMo
         local outcome = lib.skillCheck({'easy', 'easy', {areaSize = 60, speedMultiplier = 1}, 'easy'}, {'w', 'a', 's', 'd'})
         if outcome == true then
             if not Config.MoneyDrop then
-                LootATM(atmCoords)
+               LootATM(atmCoords)
             else
                 TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
             end
@@ -336,6 +341,45 @@ AddEventHandler('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmMo
             TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
             TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
         end
+    elseif Config.Hacking.Minigame == 'ps-ui-circle' then
+        exports['ps-ui']:Circle(function(success)
+            if success then
+                if not Config.MoneyDrop then
+                    LootATM(atmCoords)
+                else
+                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
+                end
+            else
+                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
+                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
+            end
+        end, 4, 60)  -- Number of Circles, Time in milliseconds
+    elseif Config.Hacking.Minigame == 'ps-ui-maze' then
+        exports['ps-ui']:Maze(function(success)
+            if success then
+                if not Config.MoneyDrop then
+                    LootATM(atmCoords)
+                else
+                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
+                end
+            else
+                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
+                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
+            end
+        end, 120)
+    elseif Config.Hacking.Minigame == 'ps-ui-scrambler' then
+        exports['ps-ui']:Scrambler(function(success)
+            if success then
+                if not Config.MoneyDrop then
+                    LootATM(atmCoords)
+                else
+                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
+                end
+            else
+                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
+                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
+            end
+        end, 'numeric', 120, 1)  -- Type options: alphabet, numeric, alphanumeric, greek, braille, runes; Time in seconds; Mirrored options: 0, 1, 2
     end
 end)
 
@@ -438,7 +482,10 @@ AddEventHandler("pl_atmrobbery_drill:success", function(atmEntity, atmCoords, at
         local forceX = atmForward.x * 2
         local forceY = atmForward.y * 2
         local forceZ = 0.2
-
+        if atmModelName ~= "prop_atm_01" then
+            SetEntityNoCollisionEntity(cash, atmEntity, false)
+            SetEntityNoCollisionEntity(atmEntity, cash, false)
+        end
         SetEntityVelocity(cash, forceX, forceY, forceZ)
         AddCashToTarget(cash,atmCoords)
         table.insert(cashObjects, cash)
@@ -461,6 +508,7 @@ AddEventHandler("pl_atmrobbery:spitCash", function(atmEntity, atmCoords, atmMode
     if atmModels[atmModelName] then
         dropOffset = atmModels[atmModelName]
     end
+
     local dropPosition = atmCoords + dropOffset
     for i = 1, Config.Reward.hack_cash_pile do 
         Wait(150)
@@ -470,7 +518,11 @@ AddEventHandler("pl_atmrobbery:spitCash", function(atmEntity, atmCoords, atmMode
         local forceX = atmForward.x * 2 
         local forceY = atmForward.y * 2
         local forceZ = 0.2
-
+        if atmModelName ~= "prop_atm_01" then
+            SetEntityNoCollisionEntity(cash, atmEntity, false)
+            SetEntityNoCollisionEntity(atmEntity, cash, false)
+        end
+        
         SetEntityVelocity(cash, forceX, forceY, forceZ)
         AddCashToTarget(cash,atmCoords)
         table.insert(cashObjects, cash)
