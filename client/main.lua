@@ -166,7 +166,7 @@ function DispatchAlert()
             Config.Police.Job -- jobs to notify
             )
 
-    elseif Config.Dispatch == 'rcore_disptach' then
+    elseif Config.Dispatch == 'rcore' then
         local playerData = exports['rcore_dispatch']:GetPlayerData()
         exports['screenshot-basic']:requestScreenshotUpload('InsertWebhookLinkHERE', "files[]", function(val)
             local image = json.decode(val)
