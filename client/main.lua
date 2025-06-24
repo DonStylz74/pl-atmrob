@@ -232,13 +232,15 @@ AddEventHandler('pl_atmrobbery_drill', function(data)
                 end
                 TriggerEvent("Drilling:Start",function(success)
                     if (success) then
+                        TriggerServerEvent('pl_atmrobbery:MinigameResult', true, 'drill')
                         if not Config.MoneyDrop then
                             LootATM(atmCoords)
                         else
+
                             TriggerEvent('pl_atmrobbery_drill:success',entity, atmCoords, atmModel)
                         end
                     else
-                      TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
+                      TriggerServerEvent('pl_atmrobbery:MinigameResult', false, 'drill')
                     end
                 end)
             else
@@ -309,79 +311,55 @@ function LootATM(atmCoords)
                 clip = 'loop', 
             }
         })
-
-        TriggerServerEvent('pl_atmrobbery:GiveReward',atmCoords)
+        TriggerServerEvent('pl_atmrobbery:robbery',atmCoords)
 end
 
-RegisterNetEvent('pl_atmrobbery:StartMinigame')
-AddEventHandler('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmModel)
-
-    if Config.Hacking.Minigame == 'utk_fingerprint' then
-        TriggerEvent("utk_fingerprint:Start", 1, 6, 1, function(outcome, reason)
-            if outcome == true then
-                if not Config.MoneyDrop then
-                    LootATM(atmCoords)
-                else
-                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
-                end
-            elseif outcome == false then
-                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
-            end
-        end)
-    elseif Config.Hacking.Minigame == 'ox_lib' then
-        local outcome = lib.skillCheck({'easy', 'easy', {areaSize = 60, speedMultiplier = 1}, 'easy'}, {'w', 'a', 's', 'd'})
-        if outcome == true then
-            if not Config.MoneyDrop then
-               LootATM(atmCoords)
+RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmModel)
+    local function handleResult(success)
+        if success then
+            TriggerServerEvent('pl_atmrobbery:MinigameResult', true, 'hack')
+            if Config.MoneyDrop then
+                TriggerEvent("pl_atmrobbery:spitCash", entity, atmCoords, atmModel)
             else
-                TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
+                LootATM(atmCoords)
             end
-        elseif outcome == false then
+        else
             TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-            TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
+            TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'), 'error')
         end
-    elseif Config.Hacking.Minigame == 'ps-ui-circle' then
+    end
+
+    local minigame = Config.Hacking.Minigame
+
+    if minigame == 'utk_fingerprint' then
+        TriggerEvent("utk_fingerprint:Start", 1, 6, 1, function(outcome, _)
+            handleResult(outcome == true)
+        end)
+
+    elseif minigame == 'ox_lib' then
+        local outcome = lib.skillCheck({'easy', 'easy', { areaSize = 60, speedMultiplier = 1 }, 'easy'}, { 'w', 'a', 's', 'd' })
+        handleResult(outcome == true)
+
+    elseif minigame == 'ps-ui-circle' then
         exports['ps-ui']:Circle(function(success)
-            if success then
-                if not Config.MoneyDrop then
-                    LootATM(atmCoords)
-                else
-                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
-                end
-            else
-                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
-            end
-        end, 4, 60)  -- Number of Circles, Time in milliseconds
-    elseif Config.Hacking.Minigame == 'ps-ui-maze' then
+            handleResult(success)
+        end, 4, 60)
+
+    elseif minigame == 'ps-ui-maze' then
         exports['ps-ui']:Maze(function(success)
-            if success then
-                if not Config.MoneyDrop then
-                    LootATM(atmCoords)
-                else
-                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
-                end
-            else
-                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
-            end
+            handleResult(success)
         end, 120)
-    elseif Config.Hacking.Minigame == 'ps-ui-scrambler' then
+
+    elseif minigame == 'ps-ui-scrambler' then
         exports['ps-ui']:Scrambler(function(success)
-            if success then
-                if not Config.MoneyDrop then
-                    LootATM(atmCoords)
-                else
-                    TriggerEvent("pl_atmrobbery:spitCash",entity, atmCoords, atmModel)
-                end
-            else
-                TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-                TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'),'error')
-            end
-        end, 'numeric', 120, 1)  -- Type options: alphabet, numeric, alphanumeric, greek, braille, runes; Time in seconds; Mirrored options: 0, 1, 2
+            handleResult(success)
+        end, 'numeric', 120, 1)
+
+    else
+        TriggerEvent('pl_atmrobbery:notification', 'Invalid minigame configuration.', 'error')
     end
 end)
+
 
 
 RegisterNetEvent('pl_atmrobbery:client:policeAlert', function(coords, text)
@@ -443,7 +421,7 @@ AddEventHandler("pl_atmrobbery:pickupCash", function(data)
 
     if DoesEntityExist(entity) then
         DeleteEntity(entity)
-        TriggerServerEvent('pl_atmrobbery:GiveReward', atmCoords)
+        TriggerServerEvent('pl_atmrobbery:robbery', atmCoords)
     end
     ClearPedTasks(playerPed)
 end)

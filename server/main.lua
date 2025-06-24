@@ -3,6 +3,7 @@ local lastRobberyTime = 0
 local resourceName = 'pl-atmrob'
 lib.versionCheck('pulsepk/pl-atmrob')
 lib.locale()
+local atmRobberyState = {}
 
 local isEsExtendedStarted = GetResourceState('es_extended') == 'started'
 local isQbCoreStarted = GetResourceState('qb-core') == 'started'
@@ -48,35 +49,56 @@ lib.callback.register('pl_atmrobbery:checktime', function()
     return true
 end)
 
-
-
 RegisterServerEvent('pl_atmrobbery:MinigameResult')
-AddEventHandler('pl_atmrobbery:MinigameResult', function(success)
-    if not success then
-        lastRobberyTime = 0 
+AddEventHandler('pl_atmrobbery:MinigameResult', function(success, method)
+    local src = source
+    if success and (method == 'drill' or method == 'hack') then
+        atmRobberyState[src] = {
+            minigamePassed = true,
+            pickupcash = 0,
+            method = method
+        }
+    else
+        atmRobberyState[src] = nil
     end
 end)
-RegisterNetEvent('pl_atmrobbery:GiveReward')
-AddEventHandler('pl_atmrobbery:GiveReward', function(atmCoords)
+
+RegisterNetEvent('pl_atmrobbery:robbery')
+AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
     local src = source
     local Player = getPlayer(src)
     local Identifier = getPlayerIdentifier(src)
     local PlayerName = getPlayerName(src)
     local ped = GetPlayerPed(src)
     local distance = GetEntityCoords(ped)
+
     if #(distance - atmCoords) <= 5 then
         if Player then
-            if not Config.MoneyDrop then
-                AddPlayerMoney(Player,Config.Reward.account,Config.Reward.reward)
+            local state = atmRobberyState[src]
+
+            if state and state.minigamePassed then
+                local method = state.method or 'drill'
+                local maxCashPiles = method == 'hack' and Config.Reward.hack_cash_pile or Config.Reward.drill_cash_pile
+
+                state.pickupcash = state.pickupcash + 1
+                AddPlayerMoney(Player, Config.Reward.account, Config.Reward.cash_prop_value)
+
+                TriggerClientEvent('pl_atmrobbery:notification', src, locale('server_pickup_cash', Config.Reward.cash_prop_value), 'success')
+
+                if state.pickupcash >= maxCashPiles then
+                    atmRobberyState[src] = nil
+                else
+                    atmRobberyState[src] = state
+                end
             else
-                AddPlayerMoney(Player,Config.Reward.account,Config.Reward.cash_prop_value)
-                TriggerClientEvent('pl_atmrobbery:notification',src,locale('server_pickup_cash', Config.Reward.cash_prop_value), 'success')
+                print(('^1[Exploit Attempt]^0 %s (%s) tried to rob ATM without completing the minigame.'):format(PlayerName, Identifier))
             end
         end
     else
-        print('**Name:** '..PlayerName..'\n**Identifier:** '..Identifier..'** Attempted Exploit : Possible Hacker**')
+        print(('^1[Exploit Attempt]^0 %s (%s) triggered robbery too far from ATM.'):format(PlayerName, Identifier))
     end
 end)
+
 
 RegisterNetEvent('pl_atmrobbery:server:policeAlert', function(text)
     local src = source
@@ -100,6 +122,7 @@ RegisterNetEvent('pl_atmrobbery:server:policeAlert', function(text)
         end
     end
 end)
+
 local WaterMark = function()
     SetTimeout(1500, function()
         print('^1['..resourceName..'] ^2Thank you for Downloading the Script^0')
@@ -110,5 +133,12 @@ local WaterMark = function()
     end)
 end
 
-WaterMark()
+if Config.WaterMark then
+    WaterMark()
+end
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    atmRobberyState[src] = nil
+end)
 

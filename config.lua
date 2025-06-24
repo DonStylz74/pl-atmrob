@@ -1,6 +1,8 @@
 lib.locale()
 Config = {}
 
+Config.WaterMark = true -- Set to false to disable watermark
+
 -- Item names for hacking and drilling
 Config.HackingItem = false  -- Default item name for hacking
 Config.DrillItem = false  -- Default item name for drilling
