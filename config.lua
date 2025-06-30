@@ -21,7 +21,7 @@ Config.Notify = 'ox' --'ox', 'esx', 'okok','qb','wasabi','brutal_notify',custom
 Config.Target = 'ox-target' --qb-target, ox-target
 
 Config.Hacking = {
-    Minigame = 'ox_lib', --utk_fingerprint, ox_lib
+    Minigame = 'ox_lib', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
     InitialHackDuration = 2000, --2 seconds
     LootAtmDuration = 20000 --20 seconds
 }
