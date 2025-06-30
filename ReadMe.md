@@ -1,8 +1,4 @@
-## Image
-![Image](https://i.imgur.com/4cCf0iu.png)
-
-## Preview
-[![Video Preview](https://img.youtube.com/vi/nknpd4pe5xo/0.jpg)](https://youtu.be/nknpd4pe5xo)
+[![youtube preview](https://i.imgur.com/4cCf0iu.png)](https://youtu.be/nknpd4pe5xo)
 
 # Advanced ATM Robbery Script for FiveM 🚓💰
 
@@ -46,20 +42,22 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
 - [M-drilling](https://github.com/MxttDev/M-drilling)
  [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
 
+## Installation Guide
+Checkout our documentation page for instructions on installing the script. [Click Here](https://docs.pulsescripts.dev/free-scripts/atm-robbery/installation)
 
-## Installation
+## Paid Scripts
+If you liked our free scripts and want to contribute, please check out our paid scripts
 
-1) Add the script to your server’s resources folder.
-
-2) Install the required dependencies:
-
-    utk_fingerprint for the hacking minigame.
-
-    m-drilling for the drilling minigame.
-
-3) Configure the Config.lua file to suit your server preferences.
-
-4) Add ensure pl-atmrobbery to your server.cfg file.
-
-5) Restart your server and enjoy!
+* 🍔 [BurgerShot](https://pulsescripts.tebex.io/package/6707919)
+* 🐱 [UwU Cat Cafe](https://pulsescripts.tebex.io/package/6706174)
+* 🍕 [Pizza This](https://pulsescripts.tebex.io/package/6707931)
+* ☕ [Bean Machine](https://pulsescripts.tebex.io/package/6741732)
+* 💊 [Drug Selling](https://pulsescripts.tebex.io/package/6668084)
+* 🌮 [Taco](https://pulsescripts.tebex.io/package/6707937)
+* 🐚 [Pearls](https://pulsescripts.tebex.io/package/6707935)
+* 🍔 [Horny Burgers](https://pulsescripts.tebex.io/package/6731403)
+* 🚀 [UpnAtom](https://pulsescripts.tebex.io/package/6749404)
+* 🍩 [Rusty Browns](https://pulsescripts.tebex.io/package/6707942)
+* 🍬 [Bubble Gum Cafe](https://pulsescripts.tebex.io/package/6707950)
+* 🛑 [Wheel Clamper](https://pulsescripts.tebex.io/package/6805299)
 
