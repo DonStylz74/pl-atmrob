@@ -6,10 +6,21 @@ Config.WaterMark = true -- Set to false to disable watermark
 -- Item names for hacking and drilling
 Config.HackingItem = false  -- Default item name for hacking
 Config.DrillItem = false  -- Default item name for drilling
+Config.RopeItem = false  -- Item name required for rope robbery
 
 -- Enable or disable ATM robbery actions (hacking and drilling)
 Config.EnableHacking = true  -- Set to true to enable ATM hacking
 Config.EnableDrilling = true  -- Set to true to enable ATM drilling
+Config.EnableRopeRobbery = true  -- Set to true to enable rope-based ATM robbery
+
+-- Rope robbery settings
+Config.RopeRobbery = {
+    DragForce = 0.1,  -- Drag multiplier applied to vehicle when rope is taut (0.0 = no drag, 1.0 = full drag)
+    ResistanceForce = 0.05,  -- Resistance force applied to ATM when being pulled
+    RequiredDistance = 5.0,  -- Distance needed to pull ATM loose
+    MaxRopeLength = 25.0,  -- Maximum rope length before it breaks
+    TautRopeLength = 8.0,  -- Distance at which rope becomes taut and applies drag
+}
 
 -- If you disable this the cash will not be dropped on the ground and will be added to your inventory directly
 Config.MoneyDrop = true
@@ -18,7 +29,7 @@ Config.AtmModels = {'prop_fleeca_atm', 'prop_atm_01', 'prop_atm_02', 'prop_atm_0
 
 Config.Notify = 'ox' --'ox', 'esx', 'okok','qb','wasabi','brutal_notify',custom
 
-Config.Target = 'ox-target' --qb-target, ox-target
+Config.Target = 'autodetect' -- 'autodetect', qb-target', 'ox_target'
 
 Config.Hacking = {
     Minigame = 'ox_lib', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
@@ -53,13 +64,13 @@ Config.Police = {
     Job = {'police'},
 }
 
---default for inbuilt
---ps for ps-dispatch
---aty for aty_disptach
---qs for qausar dispatch
---rcore for rcore dispatch
---os-dispatch for os-disptachv2
---custom for your own
+--'default for inbuilt
+--'ps' for ps-dispatch       | Free: https://github.com/Project-Sloth/ps-dispatch
+--'aty' for aty_disptach     | Free: https://github.com/atiysuu/aty_dispatch
+--'qs' for qausar dispatch   | Paid: https://www.quasar-store.com/
+--'rcore' for rcore dispatch | Paid: https://store.rcore.cz/
+--'op' for op-dispatch       | Free: https://github.com/ErrorMauw/op-dispatch
+--'custom' for your own
 
 Config.Dispatch = 'default'
 
