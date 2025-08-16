@@ -99,6 +99,29 @@ AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
     end
 end)
 
+RegisterNetEvent('pl_atmrobbery:rope_robbery_success')
+AddEventHandler('pl_atmrobbery:rope_robbery_success', function(atmCoords)
+    local src = source
+    local Player = getPlayer(src)
+    local Identifier = getPlayerIdentifier(src)
+    local PlayerName = getPlayerName(src)
+    local ped = GetPlayerPed(src)
+    local distance = GetEntityCoords(ped)
+
+    -- More lenient distance check for rope robbery since ATM can be moved significantly
+    if #(distance - atmCoords) <= 15 then
+        if Player then
+            -- Give money directly for rope robbery
+            local totalReward = Config.Reward.reward
+            AddPlayerMoney(Player, Config.Reward.account, totalReward)
+            
+            TriggerClientEvent('pl_atmrobbery:notification', src, locale('server_pickup_cash', totalReward), 'success')
+        end
+    else
+        print(('^1[Exploit Attempt]^0 %s (%s) triggered rope robbery too far from ATM.'):format(PlayerName, Identifier))
+    end
+end)
+
 
 RegisterNetEvent('pl_atmrobbery:server:policeAlert', function(text)
     local src = source
