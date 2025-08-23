@@ -15,9 +15,9 @@ Config.EnableRopeRobbery = true  -- Set to true to enable rope-based ATM robbery
 
 -- Rope robbery settings
 Config.RopeRobbery = {
-    DragForce = 0.1,  -- Drag multiplier applied to vehicle when rope is taut (0.0 = no drag, 1.0 = full drag)
+    DragForce = 0.2,  -- Drag multiplier applied to vehicle when rope is taut (0.0 = no drag, 1.0 = full drag)
     ResistanceForce = 0.05,  -- Resistance force applied to ATM when being pulled
-    RequiredDistance = 5.0,  -- Distance needed to pull ATM loose
+    RequiredDistance = 4.0,  -- Distance needed to pull ATM loose
     MaxRopeLength = 25.0,  -- Maximum rope length before it breaks
     TautRopeLength = 8.0,  -- Distance at which rope becomes taut and applies drag
 }
@@ -32,7 +32,7 @@ Config.Notify = 'ox' --'ox', 'esx', 'okok','qb','wasabi','brutal_notify',custom
 Config.Target = 'autodetect' -- 'autodetect', qb-target', 'ox_target'
 
 Config.Hacking = {
-    Minigame = 'ox_lib', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
+    Minigame = 'utk_fingerprint', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
     InitialHackDuration = 2000, --2 seconds
     LootAtmDuration = 20000 --20 seconds
 }
@@ -64,14 +64,14 @@ Config.Police = {
     Job = {'police'},
 }
 
---'default for inbuilt
 --'ps' for ps-dispatch       | Free: https://github.com/Project-Sloth/ps-dispatch
 --'aty' for aty_disptach     | Free: https://github.com/atiysuu/aty_dispatch
 --'qs' for qausar dispatch   | Paid: https://www.quasar-store.com/
 --'rcore' for rcore dispatch | Paid: https://store.rcore.cz/
+--'cd_dispatch' for cd_dispatch | Paid: https://codesign.pro/product/4206357
 --'op' for op-dispatch       | Free: https://github.com/ErrorMauw/op-dispatch
 --'custom' for your own
 
-Config.Dispatch = 'default'
+Config.Dispatch = 'custom'
 
 
