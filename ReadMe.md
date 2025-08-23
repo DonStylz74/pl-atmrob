@@ -1,4 +1,4 @@
-[![youtube preview](https://r2.fivemanage.com/JEc8nqRsuJODhwqwkKd7o/ytthumbnail-atmrobv2-playbutton.png)](https://youtu.be/KgvpmNxQmlo)
+[![youtube preview](https://r2.fivemanage.com/JEc8nqRsuJODhwqwkKd7o/atm-playbutton-yt.png)](https://youtu.be/KgvpmNxQmlo)
 
 # Advanced ATM Robbery Script for FiveM 🚓💰
 
