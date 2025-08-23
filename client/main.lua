@@ -1,3 +1,7 @@
+if GetResourceState('qb-core') == 'started' then
+    QBCore = exports['qb-core']:GetCoreObject()
+end
+
 local cashObjects = {}
 
 -- Table to track rope-attached ATMs
@@ -182,15 +186,19 @@ end
 RegisterNetEvent('pl_atmrobbery:notification')
 AddEventHandler('pl_atmrobbery:notification', function(message, type)
     if Config.Notify == 'ox' then
-        TriggerEvent('ox_lib:notify', {description = message, type = type or "success"})
+        lib.notify({
+            title = 'Pulse Scripts ATM',
+            description = message,
+            type = type
+        })
     elseif Config.Notify == 'esx' then
         TriggerEvent("esx:showNotification", message)
     elseif Config.Notify == 'okok' then
-        TriggerEvent('okokNotify:Alert', message, 6000, type)
+        exports['okokNotify']:Alert("Info", message, 5000, 'info')
     elseif Config.Notify == 'qb' then
-        TriggerEvent("QBCore:Notify", message, type, 6000)
+        QBCore.Functions.Notify(message, type, 5000)
     elseif Config.Notify == 'wasabi' then
-        exports.wasabi_notify:notify("ATM ROBBERY", message, 6000, type, false, 'fas fa-ghost')
+        exports.wasabi_notify:notify("Pulse Scripts ATM ROBBERY", message, 6000, type, false, 'fas fa-ghost')
     elseif Config.Notify == 'brutal_notify' then
         exports['brutal_notify']:SendAlert('Notify', message, 6000, type, false)
     elseif Config.Notify == 'custom' then
@@ -199,9 +207,7 @@ AddEventHandler('pl_atmrobbery:notification', function(message, type)
 end)
 
 function DispatchAlert()
-    if Config.Dispatch == 'default' then
-        TriggerServerEvent('pl_atmrobbery:server:policeAlert', locale('dispatch_message'))
-    elseif Config.Dispatch == 'ps' then
+    if Config.Dispatch == 'ps' then
         local playerPed = PlayerPedId()
         local coords = GetEntityCoords(playerPed)
         local street1, street2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
@@ -278,8 +284,28 @@ function DispatchAlert()
                     radius = 0,
                 }
             }
-        TriggerServerEvent('rcore_dispatch:server:sendAlert', alert)
-    end)
+            TriggerServerEvent('rcore_dispatch:server:sendAlert', alert)
+        end)
+    elseif Config.Dispatch == 'cd_dispatch' then
+        local data = exports['cd_dispatch']:GetPlayerInfo()
+        TriggerServerEvent('cd_dispatch:AddNotification', {
+            job_table = {'police', }, 
+            coords = data.coords,
+            title = '10-990 - ATM Robbery',
+            message = 'A '..data.sex..' robbing a store at '..data.street, 
+            flash = 0,
+            unique_id = data.unique_id,
+            sound = 1,
+            blip = {
+                sprite = 431, 
+                scale = 1.2, 
+                colour = 3,
+                flashes = false, 
+                text = '911 - ATM Robbery',
+                time = 5,
+                radius = 0,
+            }
+        })
     elseif Config.Dispatch == 'op' then
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
@@ -450,46 +476,6 @@ RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmM
     end
 end)
 
-
-
-RegisterNetEvent('pl_atmrobbery:client:policeAlert', function(coords, text)
-    local street1, street2 = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-    local street1name = GetStreetNameFromHashKey(street1)
-    local street2name = GetStreetNameFromHashKey(street2)
-    TriggerEvent("pl_atmrobbery:notification",''..text..' at '..street1name.. ' ' ..street2name, 'success')
-    PlaySound(-1, "Lose_1st", "GTAO_FM_Events_Soundset", 0, 0, 1)
-    local transG = 250
-    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
-    local blip2 = AddBlipForCoord(coords.x, coords.y, coords.z)
-    local blipText = text
-    SetBlipSprite(blip, 60)
-    SetBlipSprite(blip2, 161)
-    SetBlipColour(blip, 1)
-    SetBlipColour(blip2, 1)
-    SetBlipDisplay(blip, 4)
-    SetBlipDisplay(blip2, 8)
-    SetBlipAlpha(blip, transG)
-    SetBlipAlpha(blip2, transG)
-    SetBlipScale(blip, 0.8)
-    SetBlipScale(blip2, 2.0)
-    SetBlipAsShortRange(blip, false)
-    SetBlipAsShortRange(blip2, false)
-    PulseBlip(blip2)
-    BeginTextCommandSetBlipName('STRING')
-    AddTextComponentSubstringPlayerName(blipText)
-    EndTextCommandSetBlipName(blip)
-    while transG ~= 0 do
-        Wait(180 * 4)
-        transG = transG - 1
-        SetBlipAlpha(blip, transG)
-        SetBlipAlpha(blip2, transG)
-        if transG == 0 then
-            RemoveBlip(blip)
-            return
-        end
-    end
-end)
-
 RegisterNetEvent("pl_atmrobbery:pickupCash")
 AddEventHandler("pl_atmrobbery:pickupCash", function(data)
     local entity = data.entity
@@ -632,7 +618,7 @@ AddEventHandler('pl_atmrobbery_rope', function(data)
                 if Config.Police.notify then
                     DispatchAlert()
                 end
-                -- Start rope attachment process
+
                 StartRopeAttachment(entity, atmCoords, atmModel)
             else
                 TriggerEvent('pl_atmrobbery:notification', locale('wait_robbery'),'error')

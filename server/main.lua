@@ -122,30 +122,6 @@ AddEventHandler('pl_atmrobbery:rope_robbery_success', function(atmCoords)
     end
 end)
 
-
-RegisterNetEvent('pl_atmrobbery:server:policeAlert', function(text)
-    local src = source
-    local ped = GetPlayerPed(src)
-    local coords = GetEntityCoords(ped)
-    local players = getPlayers()
-    local requiredJob = Config.Police.Job
-
-    if isEsExtendedStarted then
-        for _, player in pairs(getPlayers()) do
-            if player.getJob().name == requiredJob then
-                TriggerClientEvent('pl_atmrobbery:client:policeAlert', player.source, coords, text)
-            end
-        end
-    elseif isQbCoreStarted then
-        for _, playerId in pairs(getPlayers()) do
-            local player = getPlayer(playerId)
-            if player.PlayerData.job.name == requiredJob and player.PlayerData.job.onduty then
-                TriggerClientEvent('pl_atmrobbery:client:policeAlert', playerId, coords, text)
-            end
-        end
-    end
-end)
-
 local WaterMark = function()
     SetTimeout(1500, function()
         print('^1['..resourceName..'] ^2Thank you for Downloading the Script^0')
