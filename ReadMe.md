@@ -45,7 +45,7 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
  [ox_target](https://github.com/overextended/ox_target/releases), [qb-target](https://github.com/qbcore-framework/qb-target)
 
 ## Installation Guide
-Checkout our documentation page for instructions on installing the script. [Click Here](https://docs.pulsescripts.dev/free-scripts/atm-robbery/installation)
+Checkout our documentation page for instructions on installing the script. [Click Here](https://pulsescripts.gitbook.io/)
 
 ## Paid Scripts
 If you liked our free scripts and want to contribute, please check out our paid scripts
