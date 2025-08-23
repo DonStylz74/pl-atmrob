@@ -1,4 +1,4 @@
-[![youtube preview](https://i.imgur.com/4cCf0iu.png)](https://youtu.be/nknpd4pe5xo)
+[![youtube preview](https://r2.fivemanage.com/JEc8nqRsuJODhwqwkKd7o/ytthumbnail-atmrobv2-playbutton.png)](https://youtu.be/KgvpmNxQmlo)
 
 # Advanced ATM Robbery Script for FiveM 🚓💰
 
@@ -10,7 +10,7 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
 ######
 - ✅ Framework Compatibility: Supports ESX, QBCore, and Qbox frameworks.
 
-- 🚨 Police Alerts & Dispatch Integration: Fully compatible with ps-dispatch, Aty-dispatch, Qausar Dispatch, and Rcore Dispatch for realistic police notifications.
+- 🚨 Police Alerts & Dispatch Integration: Fully compatible with ps-dispatch, Aty-dispatch,Code Design Dispatch, Qausar Dispatch, and Rcore Dispatch for realistic police notifications.
 
 - 💻 Hacking & Drilling Mechanics: Requires specific items for immersive ATM interactions.
 
@@ -33,7 +33,7 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
 
 ######
 ## Support, Scripts & More
-- [Script Store](https://pulsescripts.tebex.io/)
+- [Script Store](https://pulsescripts.com/)
 - [Join the Discord For Support](https://discord.gg/c6gXmtEf3H)
 ######
 
