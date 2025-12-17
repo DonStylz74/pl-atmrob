@@ -3,18 +3,20 @@ fx_version 'cerulean'
 lua54 'yes'
 game 'gta5'
 
-name 'Pulse ATM Robbery'
-author 'PulseScripts'
-version '2.0.1'
+name 'Advance ATM Robbery'
+author 'PulseScripts - pulsescripts.com'
+version '2.0.2'
 
 description 'Atm Robbery by PulseScripts https://discord.gg/72Y7WKsP9M'
 
 shared_scripts {
 	'@ox_lib/init.lua',
-    'config.lua',
+	'shared/config.lua',
+	'locales/locale.lua',
 }
 
 client_scripts {
+	'client/utils.lua',
 	'client/main.lua'
 }
 
@@ -25,6 +27,7 @@ server_scripts {
 }
 
 files {
+	'locales/*.lua',
 	'locales/*.json'
 }
 
