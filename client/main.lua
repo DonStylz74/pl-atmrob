@@ -3,11 +3,7 @@ if GetResourceState('qb-core') == 'started' then
 end
 
 local cashObjects = {}
-
--- Table to track rope-attached ATMs
 local ropeAttachedATMs = {}
-
--- Table to track robbed ATM coordinates to prevent respawning
 local robbedATMCoords = {}
 
 local atmModels = {
@@ -17,7 +13,6 @@ local atmModels = {
     ["prop_fleeca_atm"] = vector3(0.127, 0.017, 1.0)
 }
 
--- Function to check if an ATM has been robbed at a specific location
 function IsATMAlreadyRobbed(atmCoords)
     for _, robbedCoords in pairs(robbedATMCoords) do
         if #(atmCoords - robbedCoords) < 1.0 then
@@ -27,49 +22,34 @@ function IsATMAlreadyRobbed(atmCoords)
     return false
 end
 
--- Function to mark an ATM as robbed
 function MarkATMAsRobbed(atmCoords)
     table.insert(robbedATMCoords, atmCoords)
 end
 
-function GetTarget()
-    if Config.Target ~= 'autodetect' then
-        return Config.Target
-    end
-
-    if GetResourceState('ox_target') == 'started' then
-        return 'ox_target'
-    elseif GetResourceState('qb-target') == 'started' then
-        return 'qb-target'
-    else
-        print('^1[Warning] No compatible Target resource detected.^0')
-        return nil
-    end
-end
-
-local targetResource = GetTarget()
+local targetResource = Utils.GetTarget()
 
 for _, model in ipairs(Config.AtmModels) do
     if targetResource == 'ox_target' then
         local options = {}
         local function canInteractGeneric(entity, action)
-            if ropeAttachedATMs[entity] then
-                if action == 'rope' then
-                    return false
-                end
-                if action == 'hack' or action == 'drill' then
-                    if ropeAttachedATMs[entity].detached or ropeAttachedATMs[entity].ropeAttached then
-                        return false
+            for _, st in pairs(ropeAttachedATMs) do
+                local atmEnt = Utils.NetToEnt(st.atmNetId)
+                if atmEnt ~= 0 and atmEnt == entity then
+                    if action == 'rope' then return false end
+                    if action == 'hack' or action == 'drill' then
+                        if st.detached or st.ropeAttached then return false end
                     end
                 end
             end
+
             local coords = GetEntityCoords(entity)
             return not IsATMAlreadyRobbed(coords)
         end
+
         if Config.EnableHacking then
             table.insert(options, {
                 event = 'pl_atmrobbery_hack',
-                label = locale('hack_atm_label'),
+                label = Locale('hack_atm_label'),
                 icon = 'fas fa-laptop-code',
                 model = model,
                 distance = 2,
@@ -80,7 +60,7 @@ for _, model in ipairs(Config.AtmModels) do
         if Config.EnableDrilling then
             table.insert(options, {
                 event = 'pl_atmrobbery_drill',
-                label = locale('drill_atm_label'),
+                label = Locale('drill_atm_label'),
                 icon = 'fas fa-tools',
                 model = model,
                 distance = 2,
@@ -91,7 +71,7 @@ for _, model in ipairs(Config.AtmModels) do
         if Config.EnableRopeRobbery and (model == 'prop_fleeca_atm' or model == 'prop_atm_02' or model == 'prop_atm_03') then
             table.insert(options, {
                 event = 'pl_atmrobbery_rope',
-                label = locale('rope_atm_label'),
+                label = Locale('rope_atm_label'),
                 icon = 'fas fa-link',
                 model = model,
                 distance = 2,
@@ -100,29 +80,30 @@ for _, model in ipairs(Config.AtmModels) do
             })
         end
         exports.ox_target:addModel(model, options)
-        
+
     elseif targetResource == 'qb-target' then
         local options = {}
         local function canInteractGeneric(entity, action)
-            if ropeAttachedATMs[entity] then
-                if action == 'rope' then
-                    return false
-                end
-                if action == 'hack' or action == 'drill' then
-                    if ropeAttachedATMs[entity].detached or ropeAttachedATMs[entity].ropeAttached then
-                        return false
+            for _, st in pairs(ropeAttachedATMs) do
+                local atmEnt = Utils.NetToEnt(st.atmNetId)
+                if atmEnt ~= 0 and atmEnt == entity then
+                    if action == 'rope' then return false end
+                    if action == 'hack' or action == 'drill' then
+                        if st.detached or st.ropeAttached then return false end
                     end
                 end
             end
+
             local coords = GetEntityCoords(entity)
             return not IsATMAlreadyRobbed(coords)
         end
+
         if Config.EnableHacking then
             table.insert(options, {
                 type = "client",
                 event = 'pl_atmrobbery_hack',
                 icon = 'fas fa-laptop-code',
-                label = locale('hack_atm_label'),
+                label = Locale('hack_atm_label'),
                 model = model,
                 item = Config.HackingItem,
                 canInteract = function(entity) return canInteractGeneric(entity, 'hack') end
@@ -133,7 +114,7 @@ for _, model in ipairs(Config.AtmModels) do
                 type = "client",
                 event = 'pl_atmrobbery_drill',
                 icon = 'fas fa-tools',
-                label = locale('drill_atm_label'),
+                label = Locale('drill_atm_label'),
                 model = model,
                 item = Config.DrillItem,
                 canInteract = function(entity) return canInteractGeneric(entity, 'drill') end
@@ -144,7 +125,7 @@ for _, model in ipairs(Config.AtmModels) do
                 type = "client",
                 event = 'pl_atmrobbery_rope',
                 icon = 'fas fa-link',
-                label = locale('rope_atm_label'),
+                label = Locale('rope_atm_label'),
                 model = model,
                 item = Config.RopeItem,
                 canInteract = function(entity) return canInteractGeneric(entity, 'rope') end
@@ -157,7 +138,7 @@ for _, model in ipairs(Config.AtmModels) do
     end
 end
 
-function AddCashToTarget(cash,atmCoords)
+function AddCashToTarget(cash, atmCoords)
     if targetResource == 'qb-target' then
         exports['qb-target']:AddTargetEntity(cash, {
             options = {
@@ -165,7 +146,7 @@ function AddCashToTarget(cash,atmCoords)
                     type = "client",
                     event = "pl_atmrobbery:pickupCash",
                     icon = "fas fa-money-bill-wave",
-                    label = locale('pick_up_cash'),
+                    label = Locale('pick_up_cash'),
                     atmCoords = atmCoords
                 }
             },
@@ -176,7 +157,7 @@ function AddCashToTarget(cash,atmCoords)
             {
                 event = "pl_atmrobbery:pickupCash",
                 icon = "fas fa-money-bill-wave",
-                label = locale('pick_up_cash'),
+                label = Locale('pick_up_cash'),
                 args = atmCoords
             }
         })
@@ -202,7 +183,7 @@ AddEventHandler('pl_atmrobbery:notification', function(message, type)
     elseif Config.Notify == 'brutal_notify' then
         exports['brutal_notify']:SendAlert('Notify', message, 6000, type, false)
     elseif Config.Notify == 'custom' then
-        -- Add your custom notifications here
+        -- custom
     end
 end)
 
@@ -225,24 +206,6 @@ function DispatchAlert()
             length = 3
         }
         exports["ps-dispatch"]:CustomAlert(alert)
-    elseif Config.Dispatch == 'qs' then
-        local playerData = exports['qs-dispatch']:GetPlayerInfo()
-        TriggerServerEvent('qs-dispatch:server:CreateDispatchCall', {
-            job = Config.Police.Job,
-            callLocation = playerData.coords,
-            callCode = { code = '10-90', snippet = 'ATM Robbery' },
-            message = "street_1: ".. playerData.street_1.. " street_2: ".. playerData.street_2.."",
-            flashes = false, -- No flashing icon
-            image = nil,
-            blip = {
-                sprite = 431,
-                scale = 1.2,
-                colour = 1,
-                flashes = true,
-                text = 'ATM Robbery',
-                time = (30 * 1000), 
-            }
-        })
     elseif Config.Dispatch == 'aty' then
         local playerPed = PlayerPedId()
         local coords = GetEntityCoords(playerPed)
@@ -324,7 +287,7 @@ function DispatchAlert()
         TriggerServerEvent('Opto_dispatch:Server:SendAlert', job, title, text, coords, panic, id)
 
     elseif Config.Dispatch == 'custom' then
-
+        --Add your custom dispatch code here
     end
 end
 
@@ -335,9 +298,9 @@ AddEventHandler('pl_atmrobbery_drill', function(data)
 
     if entity and DoesEntityExist(entity) then
         local atmCoords = GetEntityCoords(entity)
-        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z,10.0) then
-			TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z, 1500)
-		end
+        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 10.0) then
+            TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 1500)
+        end
         local enoughpolice = lib.callback.await('pl_atmrobbery:checkforpolice', false)
         if enoughpolice then
             local checktime = lib.callback.await('pl_atmrobbery:checktime', false)
@@ -346,27 +309,27 @@ AddEventHandler('pl_atmrobbery_drill', function(data)
                 if Config.Police.notify then
                     DispatchAlert()
                 end
-                TriggerEvent("Drilling:Start",function(success)
-                    if (success) then
+                TriggerEvent("Drilling:Start", function(success)
+                    if success then
                         TriggerServerEvent('pl_atmrobbery:MinigameResult', true, 'drill')
                         if not Config.MoneyDrop then
                             LootATM(atmCoords)
                         else
-
-                            TriggerEvent('pl_atmrobbery_drill:success',entity, atmCoords, atmModel)
+                            TriggerEvent('pl_atmrobbery_drill:success', entity, atmCoords, atmModel)
                         end
                     else
-                      TriggerServerEvent('pl_atmrobbery:MinigameResult', false, 'drill')
+                        TriggerServerEvent('pl_atmrobbery:MinigameResult', false, 'drill')
                     end
                 end)
             else
-                TriggerEvent('pl_atmrobbery:notification', locale('wait_robbery'),'error')
+                TriggerEvent('pl_atmrobbery:notification', Locale('wait_robbery'), 'error')
             end
         else
-            TriggerEvent('pl_atmrobbery:notification', locale('not_enough_police'),'error')
+            TriggerEvent('pl_atmrobbery:notification', Locale('not_enough_police'), 'error')
         end
     end
 end)
+
 RegisterNetEvent('pl_atmrobbery_hack')
 AddEventHandler('pl_atmrobbery_hack', function(data)
     local entity = data.entity
@@ -374,9 +337,9 @@ AddEventHandler('pl_atmrobbery_hack', function(data)
 
     if entity and DoesEntityExist(entity) then
         local atmCoords = GetEntityCoords(entity)
-        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z,10.0) then
-			TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z, 1500)
-		end
+        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 10.0) then
+            TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 1500)
+        end
         local enoughpolice = lib.callback.await('pl_atmrobbery:checkforpolice', false)
         if enoughpolice then
             local checktime = lib.callback.await('pl_atmrobbery:checktime', false)
@@ -390,44 +353,29 @@ AddEventHandler('pl_atmrobbery_hack', function(data)
                     label = 'Initializing Hack',
                     useWhileDead = false,
                     canCancel = false,
-                    disable = {
-                        car = true,
-                        move = true,
-                        combat = true,
-                    },
-                    anim = {
-                        dict = 'missheist_jewel@hacking',
-                        clip = 'hack_loop',
-                    }
+                    disable = { car = true, move = true, combat = true },
+                    anim = { dict = 'missheist_jewel@hacking', clip = 'hack_loop' }
                 })
                 TriggerEvent('pl_atmrobbery:StartMinigame', entity, atmCoords, atmModel)
             else
-                TriggerEvent('pl_atmrobbery:notification', locale('wait_robbery'),'error')
+                TriggerEvent('pl_atmrobbery:notification', Locale('wait_robbery'), 'error')
             end
         else
-            TriggerEvent('pl_atmrobbery:notification', locale('not_enough_police'),'error')
+            TriggerEvent('pl_atmrobbery:notification', Locale('not_enough_police'), 'error')
         end
     end
-    
 end)
 
 function LootATM(atmCoords)
-        lib.progressBar({
-            duration = Config.Hacking.LootAtmDuration,
-            label = 'Collecting Cash',
-            useWhileDead = false,
-            canCancel = false,
-            disable = {
-                car = true,
-                move = true,
-                combat = true,
-            },
-            anim = {
-                dict = 'oddjobs@shop_robbery@rob_till',
-                clip = 'loop', 
-            }
-        })
-        TriggerServerEvent('pl_atmrobbery:robbery',atmCoords)
+    lib.progressBar({
+        duration = Config.Hacking.LootAtmDuration,
+        label = 'Collecting Cash',
+        useWhileDead = false,
+        canCancel = false,
+        disable = { car = true, move = true, combat = true },
+        anim = { dict = 'oddjobs@shop_robbery@rob_till', clip = 'loop' }
+    })
+    TriggerServerEvent('pl_atmrobbery:robbery', atmCoords)
 end
 
 RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmModel)
@@ -441,7 +389,7 @@ RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmM
             end
         else
             TriggerServerEvent('pl_atmrobbery:MinigameResult', false)
-            TriggerEvent('pl_atmrobbery:notification', locale('failed_robbery'), 'error')
+            TriggerEvent('pl_atmrobbery:notification', Locale('failed_robbery'), 'error')
         end
     end
 
@@ -451,26 +399,15 @@ RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmM
         TriggerEvent("utk_fingerprint:Start", 1, 6, 1, function(outcome, _)
             handleResult(outcome == true)
         end)
-
     elseif minigame == 'ox_lib' then
-        local outcome = lib.skillCheck({'easy', 'easy', { areaSize = 60, speedMultiplier = 1 }, 'easy'}, { 'w', 'a', 's', 'd' })
+        local outcome = lib.skillCheck({ 'easy', 'easy', { areaSize = 60, speedMultiplier = 1 }, 'easy' }, { 'w', 'a', 's', 'd' })
         handleResult(outcome == true)
-
     elseif minigame == 'ps-ui-circle' then
-        exports['ps-ui']:Circle(function(success)
-            handleResult(success)
-        end, 4, 60)
-
+        exports['ps-ui']:Circle(function(success) handleResult(success) end, 4, 60)
     elseif minigame == 'ps-ui-maze' then
-        exports['ps-ui']:Maze(function(success)
-            handleResult(success)
-        end, 120)
-
+        exports['ps-ui']:Maze(function(success) handleResult(success) end, 120)
     elseif minigame == 'ps-ui-scrambler' then
-        exports['ps-ui']:Scrambler(function(success)
-            handleResult(success)
-        end, 'numeric', 120, 1)
-
+        exports['ps-ui']:Scrambler(function(success) handleResult(success) end, 'numeric', 120, 1)
     else
         TriggerEvent('pl_atmrobbery:notification', 'Invalid minigame configuration.', 'error')
     end
@@ -481,18 +418,15 @@ AddEventHandler("pl_atmrobbery:pickupCash", function(data)
     local entity = data.entity
     local playerPed = PlayerPedId()
     local atmCoords
+
     if targetResource == 'ox_target' then
         atmCoords = data.args
     elseif targetResource == 'qb-target' then
         atmCoords = data.atmCoords
     end
-    RequestAnimDict("pickup_object")
-    while not HasAnimDictLoaded("pickup_object") do
-        Wait(10)
-    end
 
+    Utils.EnsureAnimDict("pickup_object")
     TaskPlayAnim(playerPed, "pickup_object", "pickup_low", 8.0, -8.0, -1, 48, 0, false, false, false)
-
     Wait(1000)
 
     if DoesEntityExist(entity) then
@@ -501,22 +435,20 @@ AddEventHandler("pl_atmrobbery:pickupCash", function(data)
     end
     ClearPedTasks(playerPed)
 end)
+
 local function getModelNameFromHash(hash)
     for modelName, _ in pairs(atmModels) do
         if GetHashKey(modelName) == hash then
             return modelName
         end
     end
-    return nil -- Not found
+    return nil
 end
 
 RegisterNetEvent("pl_atmrobbery_drill:success")
 AddEventHandler("pl_atmrobbery_drill:success", function(atmEntity, atmCoords, atmModel)
     local cashModel = "hei_prop_heist_cash_pile"
-    RequestModel(cashModel)
-    while not HasModelLoaded(cashModel) do
-        Wait(10)
-    end
+    if not Utils.EnsureModel(cashModel) then return end
 
     local atmForward = GetEntityForwardVector(atmEntity)
     local atmHeading = GetEntityHeading(atmEntity)
@@ -527,21 +459,23 @@ AddEventHandler("pl_atmrobbery_drill:success", function(atmEntity, atmCoords, at
         dropOffset = atmModels[atmModelName]
     end
     local dropPosition = atmCoords + dropOffset
-    for i = 1, Config.Reward.drill_cash_pile do 
-        Wait(150)
 
+    for i = 1, Config.Reward.drill_cash_pile do
+        Wait(150)
         local cash = CreateObject(GetHashKey(cashModel), dropPosition.x, dropPosition.y, dropPosition.z, true, true, true)
         SetEntityHeading(cash, atmHeading)
 
         local forceX = atmForward.x * 2
         local forceY = atmForward.y * 2
         local forceZ = 0.2
+
         if atmModelName ~= "prop_atm_01" then
             SetEntityNoCollisionEntity(cash, atmEntity, false)
             SetEntityNoCollisionEntity(atmEntity, cash, false)
         end
+
         SetEntityVelocity(cash, forceX, forceY, forceZ)
-        AddCashToTarget(cash,atmCoords)
+        AddCashToTarget(cash, atmCoords)
         table.insert(cashObjects, cash)
     end
 end)
@@ -549,10 +483,7 @@ end)
 RegisterNetEvent("pl_atmrobbery:spitCash")
 AddEventHandler("pl_atmrobbery:spitCash", function(atmEntity, atmCoords, atmModel)
     local cashModel = "prop_anim_cash_pile_01"
-    RequestModel(cashModel)
-    while not HasModelLoaded(cashModel) do
-        Wait(10)
-    end
+    if not Utils.EnsureModel(cashModel) then return end
 
     local atmForward = GetEntityForwardVector(atmEntity)
     local atmHeading = GetEntityHeading(atmEntity)
@@ -564,193 +495,49 @@ AddEventHandler("pl_atmrobbery:spitCash", function(atmEntity, atmCoords, atmMode
     end
 
     local dropPosition = atmCoords + dropOffset
-    for i = 1, Config.Reward.hack_cash_pile do 
+    for i = 1, Config.Reward.hack_cash_pile do
         Wait(150)
-
         local cash = CreateObject(GetHashKey(cashModel), dropPosition.x, dropPosition.y, dropPosition.z, true, true, true)
         SetEntityHeading(cash, atmHeading)
-        local forceX = atmForward.x * 2 
+
+        local forceX = atmForward.x * 2
         local forceY = atmForward.y * 2
         local forceZ = 0.2
+
         if atmModelName ~= "prop_atm_01" then
             SetEntityNoCollisionEntity(cash, atmEntity, false)
             SetEntityNoCollisionEntity(atmEntity, cash, false)
         end
-        
+
         SetEntityVelocity(cash, forceX, forceY, forceZ)
-        AddCashToTarget(cash,atmCoords)
+        AddCashToTarget(cash, atmCoords)
         table.insert(cashObjects, cash)
     end
 end)
 
-
-local function ensure_rope_textures_loaded()
-	if not RopeAreTexturesLoaded() then
-		RopeLoadTextures()
-		while not RopeAreTexturesLoaded() do
-			Wait(0)
-		end
-	end
-end
-
-local function cleanup_rope_textures()
-	local ropes = GetAllRopes()
-	if type(ropes) == "table" and #ropes == 0 then
-		RopeUnloadTextures()
-	end
-end
-
-RegisterNetEvent('pl_atmrobbery_rope')
-AddEventHandler('pl_atmrobbery_rope', function(data)
-    local entity = data.entity
-    local atmModel = GetEntityModel(entity)
-
-    if entity and DoesEntityExist(entity) then
-        local atmCoords = GetEntityCoords(entity)
-        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z,10.0) then
-			TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x,atmCoords.y,atmCoords.z, 1500)
-		end
-        local enoughpolice = lib.callback.await('pl_atmrobbery:checkforpolice', false)
-        if enoughpolice then
-            local checktime = lib.callback.await('pl_atmrobbery:checktime', false)
-            if checktime then
-                Wait(1000)
-                if Config.Police.notify then
-                    DispatchAlert()
-                end
-
-                StartRopeAttachment(entity, atmCoords, atmModel)
-            else
-                TriggerEvent('pl_atmrobbery:notification', locale('wait_robbery'),'error')
-            end
-        else
-            TriggerEvent('pl_atmrobbery:notification', locale('not_enough_police'),'error')
-        end
-    end
-end)
-
-function StartRopeAttachment(atmEntity, atmCoords, atmModel)
-    local playerPed = PlayerPedId()
-    
-    SetEntityDynamic(atmEntity, true)
-    SetEntityHasGravity(atmEntity, false)
-    SetEntityCollision(atmEntity, true, true)
-    
-
-    lib.progressBar({
-        duration = 3000,
-        label = 'Attaching Rope to ATM',
-        useWhileDead = false,
-        canCancel = false,
-        disable = {
-            car = true,
-            move = true,
-            combat = true,
-        },
-        anim = {
-            dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
-            clip = 'machinic_loop_mechandplayer',
-        }
-    })
-    
+local function BuildAtmAttachmentPoint(atmEntity)
+    local atmCoords = GetEntityCoords(atmEntity)
     local atmForward = GetEntityForwardVector(atmEntity)
-    local atmAttachmentPoint = atmCoords + (atmForward * 0.5) + vector3(0, 0, 0.5)
-    
-    ropeAttachedATMs[atmEntity] = {
-        entity = atmEntity,
-        coords = atmCoords,
-        model = atmModel,
-        ropeAttached = false,
-        atmAttachmentPoint = atmAttachmentPoint,
-        initialAtmCoords = atmCoords
-    }
-    
-    TriggerEvent('pl_atmrobbery:notification', locale('rope_attached'), 'success')
-    
-    AddVehicleRopeTarget(atmEntity)
+    return atmCoords + (atmForward * 0.5) + vector3(0, 0, 0.5)
 end
 
-function AddVehicleRopeTarget(atmEntity)
-    local vehicles = GetGamePool('CVehicle')
-    local atmCoords = GetEntityCoords(atmEntity)
-    local nearbyVehicles = {}
-    
-    for _, vehicle in pairs(vehicles) do
-        if DoesEntityExist(vehicle) then
-            local vehicleCoords = GetEntityCoords(vehicle)
-            local distance = #(atmCoords - vehicleCoords)
-            if distance <= 20.0 then
-                table.insert(nearbyVehicles, vehicle)
-            end
-        end
-    end
-    
-    for _, vehicle in pairs(nearbyVehicles) do
-        if targetResource == 'ox_target' then
-            exports.ox_target:addLocalEntity(vehicle, {
-                {
-                    event = 'pl_atmrobbery_attach_vehicle_rope',
-                    icon = 'fas fa-link',
-                    label = locale('attach_rope_to_vehicle'),
-                    args = {atmEntity = atmEntity},
-                    distance = 3.0
-                }
-            })
-        elseif targetResource == 'qb-target' then
-            exports['qb-target']:AddTargetEntity(vehicle, {
-                options = {
-                    {
-                        type = "client",
-                        event = 'pl_atmrobbery_attach_vehicle_rope',
-                        icon = 'fas fa-link',
-                        label = locale('attach_rope_to_vehicle'),
-                        atmEntity = atmEntity
-                    }
-                },
-                distance = 3.0
-            })
-        end
-    end
-    
-    ropeAttachedATMs[atmEntity].targetedVehicles = nearbyVehicles
+local function GetVehicleAttachPoint(vehicle)
+    return GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.0, 0.5)
 end
 
-RegisterNetEvent('pl_atmrobbery_attach_vehicle_rope')
-AddEventHandler('pl_atmrobbery_attach_vehicle_rope', function(data)
-    local vehicle
-    local atmEntity
-    
-    if targetResource == 'ox_target' then
-        vehicle = data.entity
-        atmEntity = data.args.atmEntity
-    elseif targetResource == 'qb-target' then
-        vehicle = data.entity
-        atmEntity = data.atmEntity
-    end
-    
-    if vehicle and atmEntity and DoesEntityExist(vehicle) and DoesEntityExist(atmEntity) then
-        if ropeAttachedATMs[atmEntity] and not ropeAttachedATMs[atmEntity].ropeAttached then
-            AttachRopeToVehicle(atmEntity, vehicle)
-        else
-            TriggerEvent('pl_atmrobbery:notification', 'Rope is already attached to a vehicle or ATM is not ready.', 'error')
-        end
-    end
-end)
+RegisterNetEvent('pl_atmrobbery:rope:create', function(payload)
+    local atmEntity = Utils.NetToEnt(payload.atmNetId)
+    local vehicle = Utils.NetToEnt(payload.vehicleNetId)
+    if atmEntity == 0 or vehicle == 0 then return end
 
-function AttachRopeToVehicle(atmEntity, vehicle)
-    local atmData = ropeAttachedATMs[atmEntity]
-    if not atmData then return end
-    
-    local atmCoords = GetEntityCoords(atmEntity)
-    local vehicleCoords = GetEntityCoords(vehicle)
-    
-    local vehicleBack = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.0, 0.5)
-    
-    ensure_rope_textures_loaded()
+    local atmAttachmentPoint = BuildAtmAttachmentPoint(atmEntity)
+    local vehicleBack = GetVehicleAttachPoint(vehicle)
+    local ropeLength = #(atmAttachmentPoint - vehicleBack)
 
-    local ropeLength = #(atmData.atmAttachmentPoint - vehicleBack)
+    Utils.EnsureRopeTexturesLoaded()
+
     local rope = AddRope(
-        atmData.atmAttachmentPoint.x, atmData.atmAttachmentPoint.y, atmData.atmAttachmentPoint.z,
+        atmAttachmentPoint.x, atmAttachmentPoint.y, atmAttachmentPoint.z,
         0.0, 0.0, 0.0,
         ropeLength,
         0,
@@ -765,32 +552,185 @@ function AttachRopeToVehicle(atmEntity, vehicle)
     )
 
     if not DoesRopeExist(rope) then
-        cleanup_rope_textures()
-        TriggerEvent('pl_atmrobbery:notification', locale('rope_robbery_failed'), 'error')
+        Utils.CleanupRopeTexturesIfUnused()
         return
     end
-    
 
-    AttachEntitiesToRope(rope, atmEntity, vehicle, 
-        atmData.atmAttachmentPoint.x, atmData.atmAttachmentPoint.y, atmData.atmAttachmentPoint.z-0.2,
-        vehicleBack.x, vehicleBack.y, vehicleBack.z-0.2,
-        ropeLength, false, false, "", "")
-    
-    atmData.vehicle = vehicle
-    atmData.rope = rope
-    atmData.ropeAttached = true
-    atmData.vehicleAttachmentPoint = vehicleBack
-    
-    TriggerEvent('pl_atmrobbery:notification', locale('rope_vehicle_attached'), 'success')
-    
-    RemoveVehicleRopeTarget(atmEntity)
-    
-    MonitorVehicleMovement(atmEntity, vehicle)
+    AttachEntitiesToRope(
+        rope, atmEntity, vehicle,
+        atmAttachmentPoint.x, atmAttachmentPoint.y, atmAttachmentPoint.z - 0.2,
+        vehicleBack.x, vehicleBack.y, vehicleBack.z - 0.2,
+        ropeLength, false, false, "", ""
+    )
+
+    ropeAttachedATMs[payload.atmNetId] = ropeAttachedATMs[payload.atmNetId] or {}
+    local st = ropeAttachedATMs[payload.atmNetId]
+    st.atmNetId = payload.atmNetId
+    st.vehicleNetId = payload.vehicleNetId
+    st.rope = rope
+    st.ropeAttached = true
+    st.detached = st.detached or false
+    st.atmAttachmentPoint = atmAttachmentPoint
+    st.vehicleAttachmentPoint = vehicleBack
+end)
+
+RegisterNetEvent('pl_atmrobbery:rope:detachATM', function(payload)
+    local atmEntity = Utils.NetToEnt(payload.atmNetId)
+    local vehicle = Utils.NetToEnt(payload.vehicleNetId)
+    if atmEntity == 0 then return end
+
+    Utils.TryRequestControl(atmEntity, 500)
+
+    local atmCoords = GetEntityCoords(atmEntity)
+
+    DetachEntity(atmEntity, true, true)
+    SetEntityDynamic(atmEntity, true)
+    SetEntityHasGravity(atmEntity, true)
+    SetEntityCollision(atmEntity, true, true)
+
+    FreezeEntityPosition(atmEntity, true)
+    Wait(250)
+    FreezeEntityPosition(atmEntity, false)
+
+    if vehicle ~= 0 then
+        local vehicleCoords = GetEntityCoords(vehicle)
+        local pullDirection = vehicleCoords - atmCoords
+        local pullForce = 8.0
+
+        SetEntityVelocity(atmEntity,
+            pullDirection.x * pullForce,
+            pullDirection.y * pullForce,
+            -5.0
+        )
+    end
+
+    SetEntityAngularVelocity(atmEntity, 3.0, 3.0, 10.0)
+
+    ropeAttachedATMs[payload.atmNetId] = ropeAttachedATMs[payload.atmNetId] or {}
+    ropeAttachedATMs[payload.atmNetId].detached = true
+    ropeAttachedATMs[payload.atmNetId].ropeAttached = false
+
+    local atmCoordsNow = GetEntityCoords(atmEntity)
+    RemoveGlobalATMOptions(atmEntity)
+    AddDetachedATMTarget(atmEntity, atmCoordsNow, GetEntityModel(atmEntity))
+
+    TriggerEvent('pl_atmrobbery:notification', Locale('atm_detached'), 'success')
+end)
+
+RegisterNetEvent('pl_atmrobbery:rope:cleanup', function(payload)
+    local st = ropeAttachedATMs[payload.atmNetId]
+    if st and st.rope and DoesRopeExist(st.rope) then
+        DeleteRope(st.rope)
+    end
+    ropeAttachedATMs[payload.atmNetId] = nil
+    Utils.CleanupRopeTexturesIfUnused()
+end)
+
+RegisterNetEvent('pl_atmrobbery_rope')
+AddEventHandler('pl_atmrobbery_rope', function(data)
+    local entity = data.entity
+    local atmModel = GetEntityModel(entity)
+
+    if entity and DoesEntityExist(entity) then
+        local atmCoords = GetEntityCoords(entity)
+        if not IsPedHeadingTowardsPosition(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 10.0) then
+            TaskTurnPedToFaceCoord(PlayerPedId(), atmCoords.x, atmCoords.y, atmCoords.z, 1500)
+        end
+        local enoughpolice = lib.callback.await('pl_atmrobbery:checkforpolice', false)
+        if enoughpolice then
+            local checktime = lib.callback.await('pl_atmrobbery:checktime', false)
+            if checktime then
+                Wait(1000)
+                if Config.Police.notify then
+                    DispatchAlert()
+                end
+                StartRopeAttachment(entity, atmCoords, atmModel)
+            else
+                TriggerEvent('pl_atmrobbery:notification', Locale('wait_robbery'), 'error')
+            end
+        else
+            TriggerEvent('pl_atmrobbery:notification', Locale('not_enough_police'), 'error')
+        end
+    end
+end)
+
+function StartRopeAttachment(atmEntity, atmCoords, atmModel)
+    NetworkRegisterEntityAsNetworked(atmEntity)
+    local atmNetId = NetworkGetNetworkIdFromEntity(atmEntity)
+
+    SetEntityDynamic(atmEntity, true)
+    SetEntityHasGravity(atmEntity, false)
+    SetEntityCollision(atmEntity, true, true)
+
+    lib.progressBar({
+        duration = 3000,
+        label = 'Attaching Rope to ATM',
+        useWhileDead = false,
+        canCancel = false,
+        disable = { car = true, move = true, combat = true },
+        anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechandplayer' }
+    })
+
+    ropeAttachedATMs[atmNetId] = {
+        atmNetId = atmNetId,
+        initialAtmCoords = atmCoords,
+        model = atmModel,
+        ropeAttached = false,
+        detached = false
+    }
+
+    TriggerEvent('pl_atmrobbery:notification', Locale('rope_attached'), 'success')
+    AddVehicleRopeTarget(atmNetId, atmEntity)
 end
 
-function RemoveVehicleRopeTarget(atmEntity)
-    if ropeAttachedATMs[atmEntity] and ropeAttachedATMs[atmEntity].targetedVehicles then
-        for _, vehicle in pairs(ropeAttachedATMs[atmEntity].targetedVehicles) do
+function AddVehicleRopeTarget(atmNetId, atmEntity)
+    local vehicles = GetGamePool('CVehicle')
+    local atmCoords = GetEntityCoords(atmEntity)
+    local nearbyVehicles = {}
+
+    for _, vehicle in pairs(vehicles) do
+        if DoesEntityExist(vehicle) then
+            local vehicleCoords = GetEntityCoords(vehicle)
+            if #(atmCoords - vehicleCoords) <= 20.0 then
+                table.insert(nearbyVehicles, vehicle)
+            end
+        end
+    end
+
+    for _, vehicle in pairs(nearbyVehicles) do
+        if targetResource == 'ox_target' then
+            exports.ox_target:addLocalEntity(vehicle, {
+                {
+                    event = 'pl_atmrobbery_attach_vehicle_rope',
+                    icon = 'fas fa-link',
+                    label = Locale('attach_rope_to_vehicle'),
+                    args = { atmNetId = atmNetId },
+                    distance = 3.0
+                }
+            })
+        elseif targetResource == 'qb-target' then
+            exports['qb-target']:AddTargetEntity(vehicle, {
+                options = {
+                    {
+                        type = "client",
+                        event = 'pl_atmrobbery_attach_vehicle_rope',
+                        icon = 'fas fa-link',
+                        label = Locale('attach_rope_to_vehicle'),
+                        atmNetId = atmNetId
+                    }
+                },
+                distance = 3.0
+            })
+        end
+    end
+
+    ropeAttachedATMs[atmNetId].targetedVehicles = nearbyVehicles
+end
+
+function RemoveVehicleRopeTargetByNetId(atmNetId)
+    local st = ropeAttachedATMs[atmNetId]
+    if st and st.targetedVehicles then
+        for _, vehicle in pairs(st.targetedVehicles) do
             if DoesEntityExist(vehicle) then
                 if targetResource == 'ox_target' then
                     exports.ox_target:removeEntity(vehicle)
@@ -799,110 +739,106 @@ function RemoveVehicleRopeTarget(atmEntity)
                 end
             end
         end
-        ropeAttachedATMs[atmEntity].targetedVehicles = nil
+        st.targetedVehicles = nil
     end
 end
 
-function MonitorVehicleMovement(atmEntity, vehicle)
-    local initialVehicleCoords = GetEntityCoords(vehicle)
-    local initialAtmCoords = GetEntityCoords(atmEntity)
-    local distanceMoved = 0
-    local requiredDistance = Config.RopeRobbery.RequiredDistance
-    
+RegisterNetEvent('pl_atmrobbery_attach_vehicle_rope')
+AddEventHandler('pl_atmrobbery_attach_vehicle_rope', function(data)
+    local vehicle
+    local atmNetId
+
+    if targetResource == 'ox_target' then
+        vehicle = data.entity
+        atmNetId = data.args.atmNetId
+    elseif targetResource == 'qb-target' then
+        vehicle = data.entity
+        atmNetId = data.atmNetId
+    end
+
+    if not vehicle or not atmNetId then return end
+    if not DoesEntityExist(vehicle) then return end
+
+    local st = ropeAttachedATMs[atmNetId]
+    if not st or st.ropeAttached then
+        TriggerEvent('pl_atmrobbery:notification', 'Rope already attached or ATM not ready.', 'error')
+        return
+    end
+
+    NetworkRegisterEntityAsNetworked(vehicle)
+    local vehicleNetId = NetworkGetNetworkIdFromEntity(vehicle)
+
+    st.ropeAttached = true
+    st.vehicleNetId = vehicleNetId
+
+    TriggerServerEvent('pl_atmrobbery:rope:requestAttachVehicle', {
+        atmNetId = atmNetId,
+        vehicleNetId = vehicleNetId
+    })
+
+    TriggerEvent('pl_atmrobbery:notification', Locale('rope_vehicle_attached'), 'success')
+    RemoveVehicleRopeTargetByNetId(atmNetId)
+
+    MonitorVehicleMovement(atmNetId)
+end)
+
+function MonitorVehicleMovement(atmNetId)
     CreateThread(function()
-        while ropeAttachedATMs[atmEntity] and ropeAttachedATMs[atmEntity].ropeAttached do
+        local st = ropeAttachedATMs[atmNetId]
+        if not st or not st.vehicleNetId then return end
+
+        local atmEntity = Utils.NetToEnt(atmNetId)
+        local vehicle = Utils.NetToEnt(st.vehicleNetId)
+        if atmEntity == 0 or vehicle == 0 then return end
+
+        local initialVehicleCoords = GetEntityCoords(vehicle)
+        local initialAtmCoords = GetEntityCoords(atmEntity)
+
+        while ropeAttachedATMs[atmNetId] and ropeAttachedATMs[atmNetId].ropeAttached and not ropeAttachedATMs[atmNetId].detached do
             Wait(100)
-            
-            if not DoesEntityExist(vehicle) or not DoesEntityExist(atmEntity) then
-                
-                ropeAttachedATMs[atmEntity] = nil
-                break
-            end
-            
+
+            atmEntity = Utils.NetToEnt(atmNetId)
+            vehicle = Utils.NetToEnt(st.vehicleNetId)
+            if atmEntity == 0 or vehicle == 0 then break end
+
             local currentVehicleCoords = GetEntityCoords(vehicle)
             local currentAtmCoords = GetEntityCoords(atmEntity)
-            
+
             local vehicleDistance = #(currentVehicleCoords - initialVehicleCoords)
             local atmDisplacement = #(currentAtmCoords - initialAtmCoords)
-            
-            distanceMoved = vehicleDistance
-            
+
             local ropeLength = #(currentVehicleCoords - currentAtmCoords)
-            if ropeLength > Config.RopeRobbery.TautRopeLength then 
+            if ropeLength > Config.RopeRobbery.TautRopeLength then
                 local vehicleVelocity = GetEntityVelocity(vehicle)
                 local dragForce = Config.RopeRobbery.DragForce
-                local newVelocityX = vehicleVelocity.x * (1 - dragForce)
-                local newVelocityY = vehicleVelocity.y * (1 - dragForce)
-                
-                SetEntityVelocity(vehicle, newVelocityX, newVelocityY, vehicleVelocity.z)
-                
-                
+                SetEntityVelocity(vehicle, vehicleVelocity.x * (1 - dragForce), vehicleVelocity.y * (1 - dragForce), vehicleVelocity.z)
+
                 if atmDisplacement < 2.0 then
                     local pullDirection = currentVehicleCoords - currentAtmCoords
                     local pullForce = Config.RopeRobbery.ResistanceForce * 0.1
                     local atmVelocity = GetEntityVelocity(atmEntity)
-                    
-                    SetEntityVelocity(atmEntity, 
+                    SetEntityVelocity(atmEntity,
                         atmVelocity.x + pullDirection.x * pullForce,
                         atmVelocity.y + pullDirection.y * pullForce,
                         atmVelocity.z
                     )
                 end
             end
-            
-            if distanceMoved >= requiredDistance or atmDisplacement >= 3.0 then
-                DetachATM(atmEntity)
+
+            if vehicleDistance >= Config.RopeRobbery.RequiredDistance or atmDisplacement >= 3.0 then
+                TriggerServerEvent('pl_atmrobbery:rope:requestDetach', {
+                    atmNetId = atmNetId,
+                    vehicleNetId = st.vehicleNetId
+                })
                 break
             end
-        
+
             if ropeLength > Config.RopeRobbery.MaxRopeLength then
-                TriggerEvent('pl_atmrobbery:notification', locale('rope_robbery_failed'), 'error')
-                -- Do not delete rope automatically; only stop monitoring
-                ropeAttachedATMs[atmEntity] = nil
+                TriggerEvent('pl_atmrobbery:notification', Locale('rope_robbery_failed'), 'error')
                 break
             end
         end
     end)
-end
-
-function DetachATM(atmEntity)
-    if not ropeAttachedATMs[atmEntity] then return end
-    
-    local atmData = ropeAttachedATMs[atmEntity]
-    local atmCoords = GetEntityCoords(atmEntity)
-    
-    DetachEntity(atmEntity, true, true)
-    
-    SetEntityDynamic(atmEntity, true)
-    SetEntityHasGravity(atmEntity, true)
-    SetEntityCollision(atmEntity, true, true)
-    
-    FreezeEntityPosition(atmEntity, true)
-    Wait(500)
-    FreezeEntityPosition(atmEntity, false)
-    
-    local vehicleCoords = GetEntityCoords(atmData.vehicle)
-    local pullDirection = vehicleCoords - atmCoords
-    local pullForce = 8.0 -- Increased force
-    
-    SetEntityVelocity(atmEntity, 
-        pullDirection.x * pullForce, 
-        pullDirection.y * pullForce, 
-        -5.0 -- Strong downward force
-    )
-    
-    -- Add rotation for dramatic effect
-    SetEntityAngularVelocity(atmEntity, 3.0, 3.0, 10.0)
-    
-    -- Mark ATM as detached and add robbery option
-    atmData.detached = true
-    atmData.ropeAttached = false
-    
-    TriggerEvent('pl_atmrobbery:notification', locale('atm_detached'), 'success')
-    
-    RemoveGlobalATMOptions(atmEntity)
-    
-    AddDetachedATMTarget(atmEntity, atmCoords, atmData.model)
 end
 
 function RemoveGlobalATMOptions(atmEntity)
@@ -919,8 +855,8 @@ function AddDetachedATMTarget(atmEntity, atmCoords, atmModel)
             {
                 event = 'pl_atmrobbery_rob_detached',
                 icon = 'fas fa-money-bill-wave',
-                label = locale('rob_detached_atm'),
-                args = {entity = atmEntity, coords = atmCoords, model = atmModel}
+                label = Locale('rob_detached_atm'),
+                args = { entity = atmEntity, coords = atmCoords, model = atmModel }
             }
         })
     elseif targetResource == 'qb-target' then
@@ -930,7 +866,7 @@ function AddDetachedATMTarget(atmEntity, atmCoords, atmModel)
                     type = "client",
                     event = 'pl_atmrobbery_rob_detached',
                     icon = 'fas fa-money-bill-wave',
-                    label = locale('rob_detached_atm'),
+                    label = Locale('rob_detached_atm'),
                     entity = atmEntity,
                     coords = atmCoords,
                     model = atmModel
@@ -944,7 +880,7 @@ end
 RegisterNetEvent('pl_atmrobbery_rob_detached')
 AddEventHandler('pl_atmrobbery_rob_detached', function(data)
     local entity, atmCoords, atmModel
-    
+
     if targetResource == 'ox_target' then
         entity = data.args.entity
         atmCoords = data.args.coords
@@ -954,46 +890,31 @@ AddEventHandler('pl_atmrobbery_rob_detached', function(data)
         atmCoords = data.coords
         atmModel = data.model
     end
-    
-    if entity and DoesEntityExist(entity) and ropeAttachedATMs[entity] and ropeAttachedATMs[entity].detached then
 
-        if targetResource == 'ox_target' then
-            exports.ox_target:removeEntity(entity)
-        elseif targetResource == 'qb-target' then
-            exports['qb-target']:RemoveTargetEntity(entity)
-        end
-        
-        local currentAtmCoords = GetEntityCoords(entity)
-        
-        local originalAtmCoords = ropeAttachedATMs[entity].initialAtmCoords
-        MarkATMAsRobbed(originalAtmCoords)
-        
-        TriggerServerEvent('pl_atmrobbery:rope_robbery_success', currentAtmCoords)
-        
+    if not entity or not DoesEntityExist(entity) then return end
 
-        if ropeAttachedATMs[entity] then
-            local atmData = ropeAttachedATMs[entity]
-            if atmData.rope and DoesRopeExist(atmData.rope) then
-                DeleteRope(atmData.rope)
-                cleanup_rope_textures()
-            end
-        end
-        CleanupRopeRobbery(entity)
-        
-        if DoesEntityExist(entity) then
-            DeleteEntity(entity)
-        end
+    local atmNetId = NetworkGetNetworkIdFromEntity(entity)
+    local st = ropeAttachedATMs[atmNetId]
+    if not st or not st.detached then return end
+
+    if targetResource == 'ox_target' then
+        exports.ox_target:removeEntity(entity)
+    elseif targetResource == 'qb-target' then
+        exports['qb-target']:RemoveTargetEntity(entity)
     end
+
+    local currentAtmCoords = GetEntityCoords(entity)
+    local originalAtmCoords = st.initialAtmCoords
+    MarkATMAsRobbed(originalAtmCoords)
+
+    TriggerServerEvent('pl_atmrobbery:rope_robbery_success', currentAtmCoords)
+    TriggerServerEvent('pl_atmrobbery:rope:requestCleanup', { atmNetId = atmNetId })
+
+    if DoesEntityExist(entity) then
+        DeleteEntity(entity)
+    end
+    ropeAttachedATMs[atmNetId] = nil
 end)
-
-function CleanupRopeRobbery(atmEntity)
-    if ropeAttachedATMs[atmEntity] then
-        local atmData = ropeAttachedATMs[atmEntity]
-        
-
-        ropeAttachedATMs[atmEntity] = nil
-    end
-end
 
 function DeleteCashObjects()
     for _, cash in pairs(cashObjects) do
@@ -1009,8 +930,7 @@ end
 
 CreateThread(function()
     while true do
-        Wait(5000) -- Check every 5 seconds
-        
+        Wait(5000)
         local atmEntities = {}
         for _, model in ipairs(Config.AtmModels) do
             local entities = GetGamePool('CObject')
@@ -1020,12 +940,11 @@ CreateThread(function()
                 end
             end
         end
-        
+
         for _, entity in pairs(atmEntities) do
             if DoesEntityExist(entity) then
                 local coords = GetEntityCoords(entity)
                 if IsATMAlreadyRobbed(coords) then
-                    -- This ATM is at a robbed location, delete it
                     DeleteEntity(entity)
                 end
             end
@@ -1033,14 +952,15 @@ CreateThread(function()
     end
 end)
 
-
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
-        DeleteCashObjects() 
-        for atmEntity, _ in pairs(ropeAttachedATMs) do
-            CleanupRopeRobbery(atmEntity)
+        DeleteCashObjects()
+        for atmNetId, st in pairs(ropeAttachedATMs) do
+            if st.rope and DoesRopeExist(st.rope) then
+                DeleteRope(st.rope)
+            end
         end
-		cleanup_rope_textures()
+        ropeAttachedATMs = {}
+        Utils.CleanupRopeTexturesIfUnused()
     end
 end)
-

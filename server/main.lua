@@ -1,23 +1,19 @@
-
 local lastRobberyTime = 0
 local resourceName = 'pl-atmrob'
 lib.versionCheck('pulsepk/pl-atmrob')
-lib.locale()
+
 local atmRobberyState = {}
 
 local isEsExtendedStarted = GetResourceState('es_extended') == 'started'
 local isQbCoreStarted = GetResourceState('qb-core') == 'started'
 
-
 --credits to Lation for checkforpolice
 --https://github.com/IamLation/lation_247robbery
 lib.callback.register('pl_atmrobbery:checkforpolice', function()
-    
     local copCount, jobs = 0, {}
     for _, job in pairs(Config.Police.Job) do
         jobs[job] = true
     end
-    local requiredJob = Config.Police.Job
     local requiredCount = Config.Police.required
 
     if isEsExtendedStarted then
@@ -36,7 +32,6 @@ lib.callback.register('pl_atmrobbery:checkforpolice', function()
     end
     return copCount >= requiredCount
 end)
-
 
 lib.callback.register('pl_atmrobbery:checktime', function()
     local timePassed = os.time() - lastRobberyTime
@@ -75,7 +70,6 @@ AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
     if #(distance - atmCoords) <= 5 then
         if Player then
             local state = atmRobberyState[src]
-
             if state and state.minigamePassed then
                 local method = state.method or 'drill'
                 local maxCashPiles = method == 'hack' and Config.Reward.hack_cash_pile or Config.Reward.drill_cash_pile
@@ -83,7 +77,7 @@ AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
                 state.pickupcash = state.pickupcash + 1
                 AddPlayerMoney(Player, Config.Reward.account, Config.Reward.cash_prop_value)
 
-                TriggerClientEvent('pl_atmrobbery:notification', src, locale('server_pickup_cash', Config.Reward.cash_prop_value), 'success')
+                TriggerClientEvent('pl_atmrobbery:notification', src, Locale('server_pickup_cash', Config.Reward.cash_prop_value), 'success')
 
                 if state.pickupcash >= maxCashPiles then
                     atmRobberyState[src] = nil
@@ -108,18 +102,43 @@ AddEventHandler('pl_atmrobbery:rope_robbery_success', function(atmCoords)
     local ped = GetPlayerPed(src)
     local distance = GetEntityCoords(ped)
 
-    -- More lenient distance check for rope robbery since ATM can be moved significantly
     if #(distance - atmCoords) <= 15 then
         if Player then
-            -- Give money directly for rope robbery
             local totalReward = Config.Reward.reward
             AddPlayerMoney(Player, Config.Reward.account, totalReward)
-            
-            TriggerClientEvent('pl_atmrobbery:notification', src, locale('server_pickup_cash', totalReward), 'success')
+            TriggerClientEvent('pl_atmrobbery:notification', src, string.format(Locale('server_pickup_cash'), totalReward), 'success')
         end
     else
         print(('^1[Exploit Attempt]^0 %s (%s) triggered rope robbery too far from ATM.'):format(PlayerName, Identifier))
     end
+end)
+
+
+RegisterNetEvent('pl_atmrobbery:rope:requestAttachVehicle', function(payload)
+    if type(payload) ~= 'table' then return end
+    if not payload.atmNetId or not payload.vehicleNetId then return end
+
+    TriggerClientEvent('pl_atmrobbery:rope:create', -1, {
+        atmNetId = payload.atmNetId,
+        vehicleNetId = payload.vehicleNetId
+    })
+end)
+
+RegisterNetEvent('pl_atmrobbery:rope:requestDetach', function(payload)
+    if type(payload) ~= 'table' then return end
+    if not payload.atmNetId or not payload.vehicleNetId then return end
+
+    TriggerClientEvent('pl_atmrobbery:rope:detachATM', -1, {
+        atmNetId = payload.atmNetId,
+        vehicleNetId = payload.vehicleNetId
+    })
+end)
+
+RegisterNetEvent('pl_atmrobbery:rope:requestCleanup', function(payload)
+    if type(payload) ~= 'table' then return end
+    if not payload.atmNetId then return end
+
+    TriggerClientEvent('pl_atmrobbery:rope:cleanup', -1, { atmNetId = payload.atmNetId })
 end)
 
 local WaterMark = function()
@@ -128,7 +147,6 @@ local WaterMark = function()
         print('^1['..resourceName..'] ^2If you encounter any issues please Join the discord https://discord.gg/c6gXmtEf3H to get support..^0')
         print('^1['..resourceName..'] ^2Enjoy a secret 20% OFF any script of your choice on https://pulsescripts.com/^0')
         print('^1['..resourceName..'] ^2Using the coupon code: SPECIAL20 (one-time use coupon, choose wisely)^0')
-    
     end)
 end
 
