@@ -5,6 +5,8 @@
 Take your server to the next level with this fully customizable **ATM Robbery Script**!  
 Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script delivers immersive gameplay with realistic mechanics, dynamic rewards, and extensive integrations.
 
+[![ZAP-Hosting Gameserver and Webhosting](https://zap-hosting.com/interface/download/images.php?type=affiliate&id=431904)](https://zap-hosting.com/pulsescripts?voucher=pulse-20)
+
 
 ## 🌟 Key Features
 ######
@@ -52,14 +54,15 @@ If you liked our free scripts and want to contribute, please check out our paid 
 
 * 🍔 [BurgerShot](https://pulsescripts.com/product/burgershot)
 * 🐱 [UwU Cat Cafe](https://pulsescripts.com/product/uwucatcafe)
-* 🍕 [Pizza This](https://pulsescripts.com/category/2908044)
-* ☕ [Bean Machine](https://pulsescripts.com/category/2908044)
+* 🍕 [Pizza This](https://pulsescripts.com/product/6707931)
+* ☕ [Bean Machine](https://pulsescripts.com/product/6741732)
+* 🐟 [KOI](https://pulsescripts.com/product/6994012)
+* 🍽️ [Diner](https://pulsescripts.com/product/7007587)
+* 🌮 [Taco Farmer](https://pulsescripts.com/product/6707937)
+* 🐚 [Pearls](https://pulsescripts.com/product/6707935)
+* 🍔 [Horny Burgers + UpnAtom](https://pulsescripts.com/product/6749404)
+* 🍩 [Rusty Browns](https://pulsescripts.com/product/6707942)
+* 🍬 [Bubble Gum Cafe](https://pulsescripts.com/product/6707950)
 * 💊 [Drug Selling](https://pulsescripts.com/product/drugsellingv2)
-* 🌮 [Taco](https://pulsescripts.com/category/2908044)
-* 🐚 [Pearls](https://pulsescripts.com/category/2908044)
-* 🍔 [Horny Burgers](https://pulsescripts.com/category/2908044)
-* 🚀 [UpnAtom](https://pulsescripts.com/category/2908044)
-* 🍩 [Rusty Browns](https://pulsescripts.com/category/2908044)
-* 🍬 [Bubble Gum Cafe](https://pulsescripts.com/category/2908044)
-* 🛑 [Wheel Clamper](https://pulsescripts.com/category/2908044)
+* 🛑 [Wheel Clamper](https://pulsescripts.com/product/6805299)
 
