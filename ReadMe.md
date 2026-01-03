@@ -66,3 +66,5 @@ If you liked our free scripts and want to contribute, please check out our paid 
 * 💊 [Drug Selling](https://pulsescripts.com/product/drugsellingv2)
 * 🛑 [Wheel Clamper](https://pulsescripts.com/product/6805299)
 
+<!-- GitAds-Verify: VA6IDL2SW8LHBKB1EBCVZ8W9H4PZHMXF -->
+
