@@ -5,6 +5,9 @@
 Take your server to the next level with this fully customizable **ATM Robbery Script**!  
 Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script delivers immersive gameplay with realistic mechanics, dynamic rewards, and extensive integrations.
 
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=pulsepk/pl-atmrob@github)](https://gitads.dev/v1/ad-track?source=pulsepk/pl-atmrob@github)
+
 [![ZAP-Hosting Gameserver and Webhosting](https://zap-hosting.com/interface/download/images.php?type=affiliate&id=431904)](https://zap-hosting.com/pulsescripts?voucher=pulse-20)
 
 
@@ -65,6 +68,4 @@ If you liked our free scripts and want to contribute, please check out our paid 
 * 🍬 [Bubble Gum Cafe](https://pulsescripts.com/product/6707950)
 * 💊 [Drug Selling](https://pulsescripts.com/product/drugsellingv2)
 * 🛑 [Wheel Clamper](https://pulsescripts.com/product/6805299)
-
-<!-- GitAds-Verify: VA6IDL2SW8LHBKB1EBCVZ8W9H4PZHMXF -->
 
