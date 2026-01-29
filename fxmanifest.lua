@@ -5,7 +5,7 @@ game 'gta5'
 
 name 'Advance ATM Robbery'
 author 'PulseScripts - pulsescripts.com'
-version '2.0.2'
+version '2.0.3'
 
 description 'Atm Robbery by PulseScripts https://discord.gg/72Y7WKsP9M'
 
