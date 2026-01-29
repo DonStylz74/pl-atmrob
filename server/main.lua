@@ -3,6 +3,7 @@ local resourceName = 'pl-atmrob'
 lib.versionCheck('pulsepk/pl-atmrob')
 
 local atmRobberyState = {}
+local ropeRobberyState = {}
 
 local isEsExtendedStarted = GetResourceState('es_extended') == 'started'
 local isQbCoreStarted = GetResourceState('qb-core') == 'started'
@@ -58,8 +59,8 @@ AddEventHandler('pl_atmrobbery:MinigameResult', function(success, method)
     end
 end)
 
-RegisterNetEvent('pl_atmrobbery:robbery')
-AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
+RegisterNetEvent('pl_atmrobbery:server:completed')
+AddEventHandler('pl_atmrobbery:server:completed', function(atmCoords)
     local src = source
     local Player = getPlayer(src)
     local Identifier = getPlayerIdentifier(src)
@@ -93,36 +94,98 @@ AddEventHandler('pl_atmrobbery:robbery', function(atmCoords)
     end
 end)
 
-RegisterNetEvent('pl_atmrobbery:rope_robbery_success')
-AddEventHandler('pl_atmrobbery:rope_robbery_success', function(atmCoords)
+RegisterNetEvent('pl_atmrobbery:rope_robbery_started')
+AddEventHandler('pl_atmrobbery:rope_robbery_started', function(atmCoords)
+    local src = source
+    local ped = GetPlayerPed(src)
+    local playerCoords = GetEntityCoords(ped)
+
+    if #(playerCoords - atmCoords) > 15.0 then
+        print(('[Exploit Attempt] %s tried to start rope robbery too far from ATM'):format(GetPlayerName(src)))
+        return
+    end
+
+    ropeRobberyState[src] = {
+        started = true,
+        atmCoords = atmCoords,
+        time = os.time()
+    }
+end)
+
+
+RegisterNetEvent('pl_atmrobbery:rope_robbery_completed')
+AddEventHandler('pl_atmrobbery:rope_robbery_completed', function(atmCoords)
     local src = source
     local Player = getPlayer(src)
     local Identifier = getPlayerIdentifier(src)
     local PlayerName = getPlayerName(src)
     local ped = GetPlayerPed(src)
-    local distance = GetEntityCoords(ped)
+    local playerCoords = GetEntityCoords(ped)
 
-    if #(distance - atmCoords) <= 15 then
-        if Player then
-            local totalReward = Config.Reward.reward
-            AddPlayerMoney(Player, Config.Reward.account, totalReward)
-            TriggerClientEvent('pl_atmrobbery:notification', src, string.format(Locale('server_pickup_cash'), totalReward), 'success')
-        end
-    else
+    local state = ropeRobberyState[src]
+
+    if #(playerCoords - atmCoords) > 15.0 then
         print(('^1[Exploit Attempt]^0 %s (%s) triggered rope robbery too far from ATM.'):format(PlayerName, Identifier))
+        return
+    end
+
+    if not state or not state.started then
+        print(('^1[Exploit Attempt]^0 %s (%s) triggered rope robbery without valid state.'):format(PlayerName, Identifier))
+        return
+    end
+
+    if os.time() - state.time > 300 then
+        ropeRobberyState[src] = nil
+        print(('^1[Exploit Attempt]^0 %s (%s) rope robbery expired.'):format(PlayerName, Identifier))
+        return
+    end
+
+    if Player then
+        local totalReward = Config.Reward.reward
+        AddPlayerMoney(Player, Config.Reward.account, totalReward)
+
+        TriggerClientEvent(
+            'pl_atmrobbery:notification',
+            src,
+            string.format(Locale('server_pickup_cash'), totalReward),
+            'success'
+        )
+        TriggerClientEvent('pl_atmrobbery:rope:requestCleanup', -1)
+    end
+
+    ropeRobberyState[src] = nil
+end)
+
+CreateThread(function()
+    while true do
+        Wait(5000)
+        for atmNetId, st in pairs(ropeAttachedATMs) do
+            if st.rope and not DoesRopeExist(st.rope) then
+                ropeAttachedATMs[atmNetId] = nil
+            end
+        end
     end
 end)
 
-
 RegisterNetEvent('pl_atmrobbery:rope:requestAttachVehicle', function(payload)
+    local src = source
     if type(payload) ~= 'table' then return end
     if not payload.atmNetId or not payload.vehicleNetId then return end
 
+    ropeRobberyState[src] = {
+        started = true,
+        atmNetId = payload.atmNetId,
+        vehicleNetId = payload.vehicleNetId,
+        time = os.time()
+    }
+
     TriggerClientEvent('pl_atmrobbery:rope:create', -1, {
         atmNetId = payload.atmNetId,
-        vehicleNetId = payload.vehicleNetId
+        vehicleNetId = payload.vehicleNetId,
+        owner = src
     })
 end)
+
 
 RegisterNetEvent('pl_atmrobbery:rope:requestDetach', function(payload)
     if type(payload) ~= 'table' then return end
@@ -132,13 +195,6 @@ RegisterNetEvent('pl_atmrobbery:rope:requestDetach', function(payload)
         atmNetId = payload.atmNetId,
         vehicleNetId = payload.vehicleNetId
     })
-end)
-
-RegisterNetEvent('pl_atmrobbery:rope:requestCleanup', function(payload)
-    if type(payload) ~= 'table' then return end
-    if not payload.atmNetId then return end
-
-    TriggerClientEvent('pl_atmrobbery:rope:cleanup', -1, { atmNetId = payload.atmNetId })
 end)
 
 local WaterMark = function()
@@ -157,5 +213,6 @@ end
 AddEventHandler('playerDropped', function()
     local src = source
     atmRobberyState[src] = nil
+    ropeRobberyState[src] = nil
 end)
 
