@@ -375,7 +375,7 @@ function LootATM(atmCoords)
         disable = { car = true, move = true, combat = true },
         anim = { dict = 'oddjobs@shop_robbery@rob_till', clip = 'loop' }
     })
-    TriggerServerEvent('pl_atmrobbery:robbery', atmCoords)
+    TriggerServerEvent('pl_atmrobbery:server:completed', atmCoords)
 end
 
 RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmModel)
@@ -431,7 +431,7 @@ AddEventHandler("pl_atmrobbery:pickupCash", function(data)
 
     if DoesEntityExist(entity) then
         DeleteEntity(entity)
-        TriggerServerEvent('pl_atmrobbery:robbery', atmCoords)
+        TriggerServerEvent('pl_atmrobbery:server:completed', atmCoords)
     end
     ClearPedTasks(playerPed)
 end)
@@ -529,6 +529,11 @@ RegisterNetEvent('pl_atmrobbery:rope:create', function(payload)
     local atmEntity = Utils.NetToEnt(payload.atmNetId)
     local vehicle = Utils.NetToEnt(payload.vehicleNetId)
     if atmEntity == 0 or vehicle == 0 then return end
+
+    -- Prevent duplicate ropes
+    if ropeAttachedATMs[payload.atmNetId] and ropeAttachedATMs[payload.atmNetId].rope then
+        return
+    end
 
     local atmAttachmentPoint = BuildAtmAttachmentPoint(atmEntity)
     local vehicleBack = GetVehicleAttachPoint(vehicle)
@@ -895,7 +900,14 @@ AddEventHandler('pl_atmrobbery_rob_detached', function(data)
 
     local atmNetId = NetworkGetNetworkIdFromEntity(entity)
     local st = ropeAttachedATMs[atmNetId]
-    if not st or not st.detached then return end
+    
+    if st and st.rope and DoesRopeExist(st.rope) then
+        DeleteRope(st.rope)
+    end
+    
+    ropeAttachedATMs[atmNetId] = nil
+    Utils.CleanupRopeTexturesIfUnused()
+
 
     if targetResource == 'ox_target' then
         exports.ox_target:removeEntity(entity)
@@ -907,14 +919,24 @@ AddEventHandler('pl_atmrobbery_rob_detached', function(data)
     local originalAtmCoords = st.initialAtmCoords
     MarkATMAsRobbed(originalAtmCoords)
 
-    TriggerServerEvent('pl_atmrobbery:rope_robbery_success', currentAtmCoords)
-    TriggerServerEvent('pl_atmrobbery:rope:requestCleanup', { atmNetId = atmNetId })
+    TriggerServerEvent('pl_atmrobbery:rope_robbery_completed', currentAtmCoords)
 
-    if DoesEntityExist(entity) then
-        DeleteEntity(entity)
-    end
     ropeAttachedATMs[atmNetId] = nil
 end)
+
+RegisterNetEvent('pl_atmrobbery:rope:requestCleanup', function()
+    ForceDeleteRopes()
+end)
+
+RegisterNetEvent('pl_atmrobbery:rope:cleanup', function(payload)
+    local st = ropeAttachedATMs[payload.atmNetId]
+    if st and st.rope and DoesRopeExist(st.rope) then
+        DeleteRope(st.rope)
+    end
+    ropeAttachedATMs[payload.atmNetId] = nil
+    Utils.CleanupRopeTexturesIfUnused()
+end)
+
 
 function DeleteCashObjects()
     for _, cash in pairs(cashObjects) do
@@ -951,6 +973,16 @@ CreateThread(function()
         end
     end
 end)
+
+function ForceDeleteRopes()
+    for atmNetId, st in pairs(ropeAttachedATMs) do
+        if st.rope and DoesRopeExist(st.rope) then
+            DeleteRope(st.rope)
+        end
+    end
+    ropeAttachedATMs = {}
+    Utils.CleanupRopeTexturesIfUnused()
+end
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() == resourceName then
