@@ -6,7 +6,7 @@ Take your server to the next level with this fully customizable **ATM Robbery Sc
 Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script delivers immersive gameplay with realistic mechanics, dynamic rewards, and extensive integrations.
 
 
-[![ZAP-Hosting Gameserver and Webhosting](https://zap-hosting.com/interface/download/images.php?type=affiliate&id=431904)](https://zap-hosting.com/pulsescripts?voucher=pulse-20)
+[![ZAP-Hosting Gameserver and Webhosting](https://r2.fivemanage.com/JEc8nqRsuJODhwqwkKd7o/zap-hosting-banner-pulsescripts.png)](https://zap-hosting.com/pulsescripts?voucher=pulse-20)
 
 
 ## 🌟 Key Features
