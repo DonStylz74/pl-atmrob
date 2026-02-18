@@ -32,7 +32,6 @@ function GetJob(target)
     end
 end
 
-
 function AddPlayerMoney(Player,account,TotalBill)
     local source = Player.PlayerData.source
     if account == 'bank' then
@@ -51,5 +50,15 @@ function AddPlayerMoney(Player,account,TotalBill)
             Player.Functions.AddItem('markedbills', 1, false, info)
             TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['markedbills'], "add", info)
         end
+    end
+end
+
+function RemoveItem(src, item, amount)
+    if type(item) == "boolean" then return end
+    local xPlayer = getPlayer(src)
+    if GetResourceState("ox_inventory") == "started" then
+        exports.ox_inventory:RemoveItem(src, item, amount)
+    else
+        exports['qb-inventory']:RemoveItem(src, item, amount, false)
     end
 end

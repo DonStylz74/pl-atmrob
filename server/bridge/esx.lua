@@ -35,3 +35,13 @@ function AddPlayerMoney(Player,account,TotalBill)
         Player.addAccountMoney('money', TotalBill)
     end
 end
+
+function RemoveItem(src, item, amount)
+    if type(item) == "boolean" then return end
+    local xPlayer = getPlayer(src)
+    if GetResourceState("ox_inventory") == "started" then
+        exports.ox_inventory:RemoveItem(src, item, amount)
+    else
+        xPlayer.removeInventoryItem(item, amount)
+    end
+end

@@ -1,14 +1,16 @@
 
 Config = {}
 
+Config.DebugPrints = true -- Set to true to enable debug prints in console
+
 Config.Locale = 'en' -- 'en', 'fr', 'de', 'es', 'it', 'pt', 'tr' -- Language
 
 Config.WaterMark = true -- Set to false to disable watermark
 
 -- Item names for hacking and drilling
-Config.HackingItem = false  -- Default item name for hacking
-Config.DrillItem = false  -- Default item name for drilling
-Config.RopeItem = false  -- Item name required for rope robbery
+Config.HackingItem = 'pl_hackingdevice'  -- Default item name for hacking
+Config.DrillItem = 'pl_drill'  -- Default item name for drilling
+Config.RopeItem = 'pl_rope'  -- Item name required for rope robbery
 
 -- Enable or disable ATM robbery actions (hacking and drilling)
 Config.EnableHacking = true  -- Set to true to enable ATM hacking
@@ -34,9 +36,29 @@ Config.Notify = 'ox' --'ox', 'esx', 'okok','qb','wasabi','brutal_notify',custom
 Config.Target = 'autodetect' -- 'autodetect', qb-target', 'ox_target'
 
 Config.Hacking = {
-    Minigame = 'utk_fingerprint', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
+    Minigame = 'ox_lib', --utk_fingerprint, ox_lib, ps-ui-circle, ps-ui-maze, ps-ui-scrambler
     InitialHackDuration = 2000, --2 seconds
     LootAtmDuration = 20000 --20 seconds
+}
+
+Config.Shop = {
+    Enable = true,
+    id = "atmitems", -- Shop identifier
+    name = "ATM Robbery Shop", -- Display name
+    coords = vec3(-59.34, -1207.93, 28.30),
+    heading = 135.09,
+    pedModel = "a_m_m_og_boss_01", -- Change to any ped model
+    blip = {
+        enabled = true,
+        sprite = 59, -- Shop blip icon
+        color = 2,  -- Green
+        scale = 0.8
+    },
+    items = {
+        { name = 'pl_hackingdevice', amount = 50, price =50},    
+        { name = 'pl_drill', amount = 50, price = 100 },     
+        { name = 'pl_rope', amount = 50, price = 20 }     
+    }
 }
 
 Config.CooldownTimer = 60 -- default 10 minutes | 60 = 1 minute
