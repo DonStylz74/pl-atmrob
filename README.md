@@ -25,13 +25,17 @@ Designed for top frameworks like **ESX**, **QBCore**, and **Qbox**, this script 
 
 - 👮 Police Presence Requirement: Robbery only possible when the minimum number of police are online.
 
+- 🛍️ Built-in Item Shop: Integrated shop system to purchase robbery items directly in-game.
+
+- 📦 Built-in Items with Pictures: Pre-configured items with visual icons for drills, hacking devices, and ropes.
+
 - 💰 Configurable Rewards: Adjustable payout per cash pile for better economy balance.
 
 - 🔔 Flexible Notification Support: Supports ox_lib, esx, qbcore, okok, and wasabi notifications.
 
 - 🎯 Target System Compatibility: Supports both qb-target and ox_target.
 
-- 🌐 Multi-Language Support: Available in English, Spanish, German, French, Italian, and Turkish.
+- 🌐 Multi-Language Support: Available in English, Spanish, German, French, Italian,Danish and Turkish.
 
 
 ######
