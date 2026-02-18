@@ -309,6 +309,10 @@ AddEventHandler('pl_atmrobbery_drill', function(data)
                 if Config.Police.notify then
                     DispatchAlert()
                 end
+                TriggerServerEvent('pl_atmrobbery:server:removeDrill')
+                if GetResourceState('M-drilling') ~= 'started' then
+                    print("^1[ATM Robbery]^0 Drilling minigame resource not found or not started: M-drilling")
+                end
                 TriggerEvent("Drilling:Start", function(success)
                     if success then
                         TriggerServerEvent('pl_atmrobbery:MinigameResult', true, 'drill')
@@ -357,6 +361,7 @@ AddEventHandler('pl_atmrobbery_hack', function(data)
                     anim = { dict = 'missheist_jewel@hacking', clip = 'hack_loop' }
                 })
                 TriggerEvent('pl_atmrobbery:StartMinigame', entity, atmCoords, atmModel)
+                TriggerServerEvent('pl_atmrobbery:server:removeHackingDevice')
             else
                 TriggerEvent('pl_atmrobbery:notification', Locale('wait_robbery'), 'error')
             end
@@ -394,6 +399,9 @@ RegisterNetEvent('pl_atmrobbery:StartMinigame', function(entity, atmCoords, atmM
     end
 
     local minigame = Config.Hacking.Minigame
+    if GetResourceState(minigame) ~= 'started' then
+        print("^1[ATM Robbery]^0 Minigame resource not found or not started: " .. minigame)
+    end
 
     if minigame == 'utk_fingerprint' then
         TriggerEvent("utk_fingerprint:Start", 1, 6, 1, function(outcome, _)
@@ -667,7 +675,7 @@ function StartRopeAttachment(atmEntity, atmCoords, atmModel)
     SetEntityHasGravity(atmEntity, false)
     SetEntityCollision(atmEntity, true, true)
 
-    lib.progressBar({
+    if lib.progressBar({
         duration = 3000,
         label = 'Attaching Rope to ATM',
         useWhileDead = false,
@@ -675,6 +683,9 @@ function StartRopeAttachment(atmEntity, atmCoords, atmModel)
         disable = { car = true, move = true, combat = true },
         anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechandplayer' }
     })
+    then
+        TriggerServerEvent('pl_atmrobbery:server:removeRope')
+    end
 
     ropeAttachedATMs[atmNetId] = {
         atmNetId = atmNetId,

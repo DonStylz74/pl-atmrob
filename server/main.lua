@@ -94,25 +94,6 @@ AddEventHandler('pl_atmrobbery:server:completed', function(atmCoords)
     end
 end)
 
-RegisterNetEvent('pl_atmrobbery:rope_robbery_started')
-AddEventHandler('pl_atmrobbery:rope_robbery_started', function(atmCoords)
-    local src = source
-    local ped = GetPlayerPed(src)
-    local playerCoords = GetEntityCoords(ped)
-
-    if #(playerCoords - atmCoords) > 15.0 then
-        print(('[Exploit Attempt] %s tried to start rope robbery too far from ATM'):format(GetPlayerName(src)))
-        return
-    end
-
-    ropeRobberyState[src] = {
-        started = true,
-        atmCoords = atmCoords,
-        time = os.time()
-    }
-end)
-
-
 RegisterNetEvent('pl_atmrobbery:rope_robbery_completed')
 AddEventHandler('pl_atmrobbery:rope_robbery_completed', function(atmCoords)
     local src = source
@@ -156,17 +137,6 @@ AddEventHandler('pl_atmrobbery:rope_robbery_completed', function(atmCoords)
     ropeRobberyState[src] = nil
 end)
 
-CreateThread(function()
-    while true do
-        Wait(5000)
-        for atmNetId, st in pairs(ropeAttachedATMs) do
-            if st.rope and not DoesRopeExist(st.rope) then
-                ropeAttachedATMs[atmNetId] = nil
-            end
-        end
-    end
-end)
-
 RegisterNetEvent('pl_atmrobbery:rope:requestAttachVehicle', function(payload)
     local src = source
     if type(payload) ~= 'table' then return end
@@ -197,6 +167,27 @@ RegisterNetEvent('pl_atmrobbery:rope:requestDetach', function(payload)
     })
 end)
 
+RegisterNetEvent('pl_atmrobbery:server:removeRope', function()
+    local src = source
+    local player = getPlayer(src)
+    if not player then return end
+    RemoveItem(src, Config.RopeItem, 1)
+end)
+
+RegisterNetEvent('pl_atmrobbery:server:removeDrill', function()
+    local src = source
+    local player = getPlayer(src)
+    if not player then return end
+    RemoveItem(src, Config.DrillItem, 1)
+end)
+
+RegisterNetEvent('pl_atmrobbery:server:removeHackingDevice', function()
+    local src = source
+    local player = getPlayer(src)
+    if not player then return end
+    RemoveItem(src, Config.HackingItem, 1)
+end)
+
 local WaterMark = function()
     SetTimeout(1500, function()
         print('^1['..resourceName..'] ^2Thank you for Downloading the Script^0')
@@ -206,9 +197,18 @@ local WaterMark = function()
     end)
 end
 
-if Config.WaterMark then
-    WaterMark()
-end
+AddEventHandler('onServerResourceStart', function(resourceName)
+    if resourceName == GetCurrentResourceName() then
+        if Config.DebugPrints then
+            print('M-drilling' .. " Minigame → " .. (GetResourceState('M-drilling') == 'started' and "^2Found^7" or "^1Not Found^7"))
+            print(Config.Hacking.Minigame .. " Minigame → " .. (GetResourceState(Config.Hacking.Minigame) == 'started' and "^2Found^7" or "^1Not Found^7"))
+            print('')
+        end
+        if Config.WaterMark then
+            WaterMark()
+        end
+    end
+end)
 
 AddEventHandler('playerDropped', function()
     local src = source
